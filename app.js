@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3005;
+const port = 3000;
 
 const handlebars = require("express-handlebars");
 const path = require("path");
@@ -10,9 +10,9 @@ app.engine(
   "handlebars",
   handlebars.engine({
     defaultLayout: "main",
-    
   })
 );
+
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
@@ -24,6 +24,9 @@ app.use(express.json());
 
 // Make the "public" folder available statically
 app.use(express.static(path.join(__dirname, "public")));
+
+// Require and run database.js
+require("./modules/database.js");
 
 // APIs
 app.get("/", (req, res) => {
