@@ -17,8 +17,6 @@ function readAvailabilityJson(resource) {
 
 function generateScheduleEntries(availabilityJson, resourceId, resourceName) {
 
-  console.log(resourceName)
-
   const availability = availabilityJson.availability;
   const scheduleEntries = [];
 
@@ -69,13 +67,12 @@ async function getResourceName(db, resourceName) {
   return row ? row.name : null;
 }
 
-
 async function populateSchedules(db) {
   const resources = [
-    { name: 'room1', type: 'Room' },
-    { name: 'room2', type: 'Room' },
     { name: 'researcher', type: 'Researcher' },
     { name: 'nurse', type: 'Nurse' },
+    { name: 'room1', type: 'Room' },
+    { name: 'room2', type: 'Room' },
     { name: 'psychologist1', type: 'Psychologist' },
     { name: 'psychologist2', type: 'Psychologist' },
     { name: 'psychologist3', type: 'Psychologist' },
@@ -92,7 +89,6 @@ async function populateSchedules(db) {
     const resourceName = await getResourceName(db, resource.name); 
 
     const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName); 
-
 
   // Clear availability table for the current resource
   await db.run('DELETE FROM schedules WHERE name = ?', [resource.name]);

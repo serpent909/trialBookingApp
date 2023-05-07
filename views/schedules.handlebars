@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/table.css">
+</head>
+
+<body>
+    <h1>Availability Schedules</h1>
+    <div class="pagination-container">
+        {{#if (gt page 1)}}
+        <a class="pagination-link" href="/schedules?page={{subtract page 1}}">Previous</a>
+        {{else}}
+        <span class="pagination-link disabled">Previous</span>
+        {{/if}}
+
+        <span>Page {{page}} of {{totalPages}}</span>
+
+        {{#if (gt totalPages page)}}
+        <a class="pagination-link" href="/schedules?page={{add page 1}}">Next</a>
+        {{else}}
+        <span class="pagination-link disabled">Next</span>
+
+        {{/if}}
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Bookable Thing ID</th>
+                <th>Name</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each schedules}}
+            <tr>
+                <td>{{bookable_thing_id}}</td>
+                <td>{{name}}</td>
+                <td>{{formatTime start_time}}</td>
+                <td>{{formatTime end_time}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</body>
+
+</html>
