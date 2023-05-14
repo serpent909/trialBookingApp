@@ -3,8 +3,6 @@
 
 <head>
   <title>{{ title }}</title>
-  <script href="/javascript/availableSlotFiltering.js"></script>
-  <link rel="stylesheet" href="/css/table.css">
   <script src="/javascript/availableSlotFiltering.js"></script>
   <link rel="stylesheet" href="/css/table.css">
   <script>
@@ -27,6 +25,8 @@
         const nurseTime = document.getElementById('nurseTime').value;
         const psychologistTime = document.getElementById('psychologistTime').value;
         const roomTime = document.getElementById('roomTime').value;
+        const psychologistName = document.getElementById('psychologistName').value;
+        const roomName = document.getElementById('roomName').value;
 
         // Store the form values in localStorage
         const formValues = {
@@ -35,7 +35,9 @@
           researcherTime: researcherTime,
           nurseTime: nurseTime,
           psychologistTime: psychologistTime,
-          roomTime: roomTime
+          roomTime: roomTime,
+          psychologistName: psychologistName,
+          roomName: roomName
         };
         localStorage.setItem('formValues', JSON.stringify(formValues));
 
@@ -53,10 +55,11 @@
         document.getElementById('nurseTime').value = values.nurseTime || '';
         document.getElementById('psychologistTime').value = values.psychologistTime || '';
         document.getElementById('roomTime').value = values.roomTime || '';
+        document.getElementById('psychologistName').value = values.psychologistName || '';
+        document.getElementById('roomName').value = values.roomName || '';
       }
     });
   </script>
-
 </head>
 
 <body>
@@ -65,17 +68,33 @@
   <h2>Choose Appointment Details</h2>
   <form id="appointmentTypeForm">
     <label for="startDate">Start Date:</label>
-    <input type="date" id="startDate" name="startDate" value="{{ startDate }}">
+    <input type="date" id="startDate" name="startDate">
     <label for="endDate">End Date:</label>
-    <input type="date" id="endDate" name="endDate" value="{{ endDate }}">
+    <input type="date" id="endDate" name="endDate">
     <label for="researcherTime">Researcher Time (hours):</label>
-    <input type="number" id="researcherTime" name="researcherTime" value="{{ researcherTime }}">
+    <input type="number" id="researcherTime" name="researcherTime">
     <label for="nurseTime">Nurse Time (hours):</label>
-    <input type="number" id="nurseTime" name="nurseTime" value="{{ nurseTime }}">
+    <input type="number" id="nurseTime" name="nurseTime">
     <label for="psychologistTime">Psychologist Time (hours):</label>
-    <input type="number" id="psychologistTime" name="psychologistTime" value="{{ psychologistTime }}">
+    <input type="number" id="psychologistTime" name="psychologistTime">
     <label for="roomTime">Room Time (hours):</label>
-    <input type="number" id="roomTime" name="roomTime" value="{{ roomTime }}">
+    <input type="number" id="roomTime" name="roomTime">
+
+    <label for="psychologistName">Psychologist Name:</label>
+    <select id="psychologistName" name="psychologistName">
+      <option value="">Select Psychologist</option>
+      {{#each dropDownOptions.psychologistNames}}
+      <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <label for="roomName">Room Name:</label>
+    <select id="roomName" name="roomName">
+      <option value="">Select Room</option>
+      {{#each dropDownOptions.roomNames}}
+      <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
 
     <button type="submit">Update Slots</button>
   </form>

@@ -10,7 +10,7 @@ form {
   }
   
   input[type="date"],
-  input[type="number"] {
+  input[type="number"],select, option {
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
