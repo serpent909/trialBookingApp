@@ -173,6 +173,7 @@ app.get("/appointmentAvailability", async (req, res) => {
         availableSlots.push({
           id: baseAvailability.bookable_thing_id,
           name: baseAvailability.name,
+          type: baseAvailability.type,
           start_time: slot.start,
           end_time: slot.end,
 

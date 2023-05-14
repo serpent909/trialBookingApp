@@ -15,7 +15,8 @@ function readAvailabilityJson(resource) {
   return JSON.parse(rawData);
 }
 
-function generateScheduleEntries(availabilityJson, resourceId, resourceName) {
+function generateScheduleEntries(availabilityJson, resourceId, resourceName, resourceType) {
+  console.log(resourceType)
 
   const availability = availabilityJson.availability;
   const scheduleEntries = [];
@@ -41,6 +42,7 @@ function generateScheduleEntries(availabilityJson, resourceId, resourceName) {
         scheduleEntries.push({
           bookable_thing_id: resourceId,
           name: resourceName,
+          type: resourceType,
           start_time: toLocalISOString(startDateTime),
           end_time: toLocalISOString(endDateTime),
         });
@@ -67,6 +69,11 @@ async function getResourceName(db, resourceName) {
   return row ? row.name : null;
 }
 
+async function getResourcType(db, resourceType) {
+  const row = await db.get('SELECT type FROM bookable_things WHERE type = ?', [resourceType]);
+  return row ? row.type : null;
+}
+
 async function populateSchedules(db) {
   const resources = [
     { name: 'researcher', type: 'Researcher' },
@@ -84,11 +91,13 @@ async function populateSchedules(db) {
   ];
 
   for (const resource of resources) {
+
     const availabilityJson = readAvailabilityJson(resource.name);
     const resourceId = await getResourceId(db, resource.name);
     const resourceName = await getResourceName(db, resource.name);
+    const resourceType = await getResourcType(db, resource.type);
 
-    const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName);
+    const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName, resourceType);
 
     // Clear availability table for the current resource
     await db.run('DELETE FROM schedules WHERE name = ?', [resource.name]);
@@ -97,8 +106,8 @@ async function populateSchedules(db) {
     for (const entry of scheduleEntries) {
 
       await db.run(
-        'INSERT INTO schedules (bookable_thing_id, name, start_time, end_time) VALUES (?, ?, ?, ?)',
-        [entry.bookable_thing_id, entry.name, entry.start_time, entry.end_time]
+        'INSERT INTO schedules (bookable_thing_id, name, type, start_time, end_time) VALUES (?, ?, ?, ?, ?)',
+        [entry.bookable_thing_id, entry.name, entry.type, entry.start_time, entry.end_time]
       );
     }
   }

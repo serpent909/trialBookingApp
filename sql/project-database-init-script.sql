@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS schedules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bookable_thing_id INTEGER,
     name TEXT,
+    type TEXT,
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     FOREIGN KEY (bookable_thing_id) REFERENCES bookable_things(id)
