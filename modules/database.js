@@ -53,7 +53,7 @@ function generateScheduleEntries(availabilityJson, resourceId, resourceName) {
 
 function toLocalISOString(date) {
   const tzOffset = date.getTimezoneOffset() * 60000;
-  const localISOTime = new Date(date - tzOffset).toISOString().slice(0, -1);
+  const localISOTime = new Date(date - tzOffset).toISOString();
   return localISOTime;
 }
 
@@ -85,13 +85,13 @@ async function populateSchedules(db) {
 
   for (const resource of resources) {
     const availabilityJson = readAvailabilityJson(resource.name);
-    const resourceId = await getResourceId(db, resource.name); 
-    const resourceName = await getResourceName(db, resource.name); 
+    const resourceId = await getResourceId(db, resource.name);
+    const resourceName = await getResourceName(db, resource.name);
 
-    const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName); 
+    const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName);
 
-  // Clear availability table for the current resource
-  await db.run('DELETE FROM schedules WHERE name = ?', [resource.name]);
+    // Clear availability table for the current resource
+    await db.run('DELETE FROM schedules WHERE name = ?', [resource.name]);
 
 
     for (const entry of scheduleEntries) {

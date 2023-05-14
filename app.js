@@ -55,11 +55,49 @@ app.use(express.static(path.join(__dirname, "public")));
 // Require and run database.js
 require("./modules/database.js");
 
+
+function calculateAvailableSlots(availabilityStart, availabilityEnd, resourceDayAppointmentArray) {
+  const start = new Date(availabilityStart);
+  const end = new Date(availabilityEnd);
+  const availableSlots = [];
+
+  let currentSlotStart = start;
+
+  resourceDayAppointmentArray.forEach((appointment) => {
+    const appointmentStart = new Date(appointment.start);
+    const appointmentEnd = new Date(appointment.end);
+
+    if (currentSlotStart < appointmentStart) {
+      const availableSlot = {
+        start: currentSlotStart.toISOString(),
+        end: appointmentStart.toISOString()
+      };
+      availableSlots.push(availableSlot);
+    }
+
+    currentSlotStart = appointmentEnd;
+  });
+
+  if (currentSlotStart < end) {
+    const availableSlot = {
+      start: currentSlotStart.toISOString(),
+      end: end.toISOString()
+    };
+    availableSlots.push(availableSlot);
+  }
+
+  return availableSlots;
+}
+
+
+
 // APIs
 app.get("/", (req, res) => {
   res.render("home", { title: "My Website" });
 });
 
+
+//get the base schedules of the resources
 app.get("/schedules", async (req, res) => {
   try {
     const db = await sqlite.open({
@@ -86,6 +124,111 @@ app.get("/schedules", async (req, res) => {
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve schedules" });
   }
 });
+
+
+//get the remaining appointment availability
+app.get("/appointmentAvailability", async (req, res) => {
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    // Fetch the base availability information from the schedules table
+    const baseAvailabilitys = await db.all("SELECT * FROM schedules");
+    const bookedAppointments = await db.all("SELECT * FROM appointments");
+
+    const availableSlots = [];
+
+    baseAvailabilitys.forEach((baseAvailability) => {
+
+      const resourceDayAppointmentArray = [];
+      bookedAppointments.forEach((bookedAppointment) => {
+
+
+        const appointmentDate = bookedAppointment.start_time.split("T")[0];
+        const availabilityDate = baseAvailability.start_time.split("T")[0];
+
+        if (appointmentDate === availabilityDate && (bookedAppointment.researcher_id === baseAvailability.bookable_thing_id || 
+          bookedAppointment.room_id === baseAvailability.bookable_thing_id ||
+          bookedAppointment.nurse_id === baseAvailability.bookable_thing_id ||
+          bookedAppointment.psychologist_id === baseAvailability.bookable_thing_id )) {
+
+          const appointmentStart = bookedAppointment.start_time;
+          const appointmentEnd = bookedAppointment.end_time;
+
+          const bookedTimes = {
+            start: appointmentStart,
+            end: appointmentEnd
+          }
+
+          resourceDayAppointmentArray.push(bookedTimes)
+        }
+      })
+
+      let availableDaySlots = calculateAvailableSlots(baseAvailability.start_time, baseAvailability.end_time, resourceDayAppointmentArray)
+
+      availableDaySlots.forEach((slot) => {
+
+        availableSlots.push({
+          id: baseAvailability.bookable_thing_id,
+          name: baseAvailability.name,
+          start_time: slot.start,
+          end_time: slot.end,
+
+        })
+      })
+    })
+
+    res.render("appointmentAvailability", {
+      title: "Appointment Availability",
+      availableSlots,
+    });
+  } catch (err) {
+    console.error("Failed to retrieve appointment availability:", err);
+    res
+      .status(500)
+      .render("error", {
+        title: "Error",
+        message: "Failed to retrieve appointment availability",
+      });
+  }
+});
+
+
+//Add an appointment to the database
+app.post("/appointments", async (req, res) => {
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const {
+      participant_id,
+      researcher_id,
+      nurse_id,
+      psychologist_id,
+      room_id,
+      appointment_type_id,
+      start_time,
+      end_time
+    } = req.body;
+
+    // Insert the new appointment into the appointments table
+    await db.run(
+      "INSERT INTO appointments (participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time]
+    );
+
+    res.status(200).send("Appointment created successfully");
+  } catch (err) {
+    console.error('Failed to create appointment:', err);
+    res.status(500).send("Failed to create appointment");
+  }
+});
+
+
 
 // Start the server running.
 app.listen(port, function () {

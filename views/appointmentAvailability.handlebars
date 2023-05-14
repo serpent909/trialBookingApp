@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{ title }}</title>
+</head>
+
+<body>
+  <h1>Appointment Availability</h1>
+
+  <h2>Choose Appointment Type:</h2>
+<form id="appointmentTypeForm">
+  <label for="startDate">Start Date:</label>
+  <input type="date" id="startDate" name="startDate">
+
+  <label for="endDate">End Date:</label>
+  <input type="date" id="endDate" name="endDate">
+
+
+  </select>
+
+  <button type="submit">Update Slots</button>
+</form>
+
+  <h2>Available Slots</h2>
+  <ul>
+    {{#each availableSlots}}
+    <li>
+      Resource ID: {{ id }},
+      Name: {{ name }},
+      Start Time: {{ start_time }},
+      End Time: {{ end_time }}
+    </li>
+    {{/each}}
+  </ul>
+</body>
+
+</html>

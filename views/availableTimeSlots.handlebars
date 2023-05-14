@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h1>Available Time Slots</h1>
+
+    {{#if availableTimeSlots.length}}
+      <ul>
+        {{#each availableTimeSlots}}
+          <li>Start Time: {{ this.start_time }}, End Time: {{ this.end_time }}</li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p>No available time slots found.</p>
+    {{/if}}
+  </body>
+</html>
