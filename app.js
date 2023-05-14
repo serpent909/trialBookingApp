@@ -15,7 +15,7 @@ app.engine(
     defaultLayout: "main",
     helpers: {
       formatTime: function (dateTime) {
-        const date = new Date(dateTime);
+        const date = new Date(dateTime.slice(0, -1));
         const options = {
           month: 'long',
           day: 'numeric',
@@ -56,7 +56,7 @@ app.use(express.static(path.join(__dirname, "public")));
 require("./modules/database.js");
 
 
-function calculateAvailableSlots(availabilityStart, availabilityEnd, resourceDayAppointmentArray) {
+function calculateAvailableSlots(availabilityType, availabilityName, availabilityStart, availabilityEnd, resourceDayAppointmentArray) {
   const start = new Date(availabilityStart);
   const end = new Date(availabilityEnd);
   const availableSlots = [];
@@ -69,6 +69,8 @@ function calculateAvailableSlots(availabilityStart, availabilityEnd, resourceDay
 
     if (currentSlotStart < appointmentStart) {
       const availableSlot = {
+        type: availabilityType,
+        name: availabilityName,
         start: currentSlotStart.toISOString(),
         end: appointmentStart.toISOString()
       };
@@ -80,11 +82,14 @@ function calculateAvailableSlots(availabilityStart, availabilityEnd, resourceDay
 
   if (currentSlotStart < end) {
     const availableSlot = {
+      type: availabilityType,
+      name: availabilityName,
       start: currentSlotStart.toISOString(),
       end: end.toISOString()
     };
     availableSlots.push(availableSlot);
   }
+
 
   return availableSlots;
 }
@@ -142,6 +147,11 @@ app.get("/appointmentAvailability", async (req, res) => {
     // Get the start and end dates from the request query parameters
     const startDate = req.query.startDate;
     const endDate = req.query.endDate;
+    const resarcherTime = req.query.researcherTime;
+    const nurseTime = req.query.nurseTime;
+    const psychologistTime = req.query.psychologistTime;
+    const roomTime = req.query.roomTime;
+
 
     const availableSlots = [];
 
@@ -162,6 +172,7 @@ app.get("/appointmentAvailability", async (req, res) => {
           const appointmentEnd = bookedAppointment.end_time;
 
           const bookedTimes = {
+
             start: appointmentStart,
             end: appointmentEnd,
           };
@@ -171,16 +182,89 @@ app.get("/appointmentAvailability", async (req, res) => {
       });
 
       let availableDaySlots = calculateAvailableSlots(
+        baseAvailability.type,
+        baseAvailability.name,
         baseAvailability.start_time,
         baseAvailability.end_time,
         resourceDayAppointmentArray
       );
 
+
       // Filter the available slots based on the start and end dates
-      availableDaySlots = availableDaySlots.filter((slot) => {
-        const slotDate = slot.start.split("T")[0];
-        return slotDate >= startDate && slotDate <= endDate;
-      });
+
+
+      if (startDate && endDate) {
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotDate = slot.start.split("T")[0];
+          return slotDate >= startDate && slotDate <= endDate;
+        });
+      }
+
+
+      if (resarcherTime) {
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotType = slot.type;
+
+          if (slotType === "Researcher") {
+            const slotStart = new Date(slot.start);
+            const slotEnd = new Date(slot.end);
+            return (slotEnd - slotStart) >= resarcherTime * 60 * 60 * 1000;
+          } else {
+            return true;
+          }
+
+        });
+      }
+
+      if (nurseTime) {
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotType = slot.type;
+
+          if (slotType === "Nurse") {
+            const slotStart = new Date(slot.start);
+            const slotEnd = new Date(slot.end);
+            return (slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000;
+          } else {
+            return true;
+          }
+        });
+      }
+
+      if(psychologistTime){
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotType = slot.type;
+
+          if (slotType === "Psychologist") {
+            const slotStart = new Date(slot.start);
+            const slotEnd = new Date(slot.end);
+            return (slotEnd - slotStart) >= psychologistTime * 60 * 60 * 1000;
+          } else {
+            return true;
+          }
+        });
+      }
+
+      if(roomTime){
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotType = slot.type;
+
+          if (slotType === "Room") {
+            const slotStart = new Date(slot.start);
+            const slotEnd = new Date(slot.end);
+            return (slotEnd - slotStart) >= roomTime * 60 * 60 * 1000;
+          } else {
+            return true;
+          }
+        });
+      }
+
+
+
+
+
+
+
+
 
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
@@ -196,6 +280,7 @@ app.get("/appointmentAvailability", async (req, res) => {
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
       availableSlots,
+      startDate,
     });
   } catch (err) {
     console.error("Failed to retrieve appointment availability:", err);

@@ -5,6 +5,58 @@
   <title>{{ title }}</title>
   <script href="/javascript/availableSlotFiltering.js"></script>
   <link rel="stylesheet" href="/css/table.css">
+  <script src="/javascript/availableSlotFiltering.js"></script>
+  <link rel="stylesheet" href="/css/table.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('appointmentTypeForm');
+
+      // Restore form values from localStorage if available
+      if (localStorage.getItem('formValues')) {
+        const storedValues = JSON.parse(localStorage.getItem('formValues'));
+        populateForm(storedValues);
+      }
+
+      form.addEventListener('submit', function (event) {
+
+
+        // Retrieve the form field values
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const researcherTime = document.getElementById('researcherTime').value;
+        const nurseTime = document.getElementById('nurseTime').value;
+        const psychologistTime = document.getElementById('psychologistTime').value;
+        const roomTime = document.getElementById('roomTime').value;
+
+        // Store the form values in localStorage
+        const formValues = {
+          startDate: startDate,
+          endDate: endDate,
+          researcherTime: researcherTime,
+          nurseTime: nurseTime,
+          psychologistTime: psychologistTime,
+          roomTime: roomTime
+        };
+        localStorage.setItem('formValues', JSON.stringify(formValues));
+
+        // Update the form field values
+        populateForm(formValues);
+
+        // Perform form submission if needed
+        // form.submit();
+      });
+
+      function populateForm(values) {
+        document.getElementById('startDate').value = values.startDate || '';
+        document.getElementById('endDate').value = values.endDate || '';
+        document.getElementById('researcherTime').value = values.researcherTime || '';
+        document.getElementById('nurseTime').value = values.nurseTime || '';
+        document.getElementById('psychologistTime').value = values.psychologistTime || '';
+        document.getElementById('roomTime').value = values.roomTime || '';
+      }
+    });
+  </script>
+
 </head>
 
 <body>
@@ -13,13 +65,17 @@
   <h2>Choose Appointment Details</h2>
   <form id="appointmentTypeForm">
     <label for="startDate">Start Date:</label>
-    <input type="date" id="startDate" name="startDate">
-
+    <input type="date" id="startDate" name="startDate" value="{{ startDate }}">
     <label for="endDate">End Date:</label>
-    <input type="date" id="endDate" name="endDate">
-
-
-    </select>
+    <input type="date" id="endDate" name="endDate" value="{{ endDate }}">
+    <label for="researcherTime">Researcher Time (hours):</label>
+    <input type="number" id="researcherTime" name="researcherTime" value="{{ researcherTime }}">
+    <label for="nurseTime">Nurse Time (hours):</label>
+    <input type="number" id="nurseTime" name="nurseTime" value="{{ nurseTime }}">
+    <label for="psychologistTime">Psychologist Time (hours):</label>
+    <input type="number" id="psychologistTime" name="psychologistTime" value="{{ psychologistTime }}">
+    <label for="roomTime">Room Time (hours):</label>
+    <input type="number" id="roomTime" name="roomTime" value="{{ roomTime }}">
 
     <button type="submit">Update Slots</button>
   </form>
@@ -42,12 +98,13 @@
         <td>{{id}}</td>
         <td>{{name}}</td>
         <td>{{type}}</td>
-        <td>{{start_time}}</td>
-        <td>{{end_time}}</td>
+        <td>{{formatTime start_time}}</td>
+        <td>{{formatTime end_time}}</td>
       </tr>
       {{/each}}
     </tbody>
   </table>
+
 </body>
 
 </html>

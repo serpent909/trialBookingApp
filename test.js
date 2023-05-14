@@ -36,4 +36,3 @@ function calculateAvailableBlocks(blockStart, blockEnd, appointmentStart, appoin
   let appointmentEnd = new Date('2023-05-01T10:00:00.000Z');
   
   const availableBlocks = calculateAvailableBlocks(blockStart, blockEnd, appointmentStart, appointmentEnd);
-  console.log(availableBlocks);
