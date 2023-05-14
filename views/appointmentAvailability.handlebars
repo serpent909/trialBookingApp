@@ -3,36 +3,52 @@
 
 <head>
   <title>{{ title }}</title>
+  <script href="/javascript/availableSlotFiltering.js"></script>
+  <link rel="stylesheet" href="/css/table.css">
 </head>
 
 <body>
   <h1>Appointment Availability</h1>
 
   <h2>Choose Appointment Type:</h2>
-<form id="appointmentTypeForm">
-  <label for="startDate">Start Date:</label>
-  <input type="date" id="startDate" name="startDate">
+  <form id="appointmentTypeForm">
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" name="startDate">
 
-  <label for="endDate">End Date:</label>
-  <input type="date" id="endDate" name="endDate">
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" name="endDate">
 
 
-  </select>
+    </select>
 
-  <button type="submit">Update Slots</button>
-</form>
+    <button type="submit">Update Slots</button>
+  </form>
 
   <h2>Available Slots</h2>
-  <ul>
-    {{#each availableSlots}}
-    <li>
-      Resource ID: {{ id }},
-      Name: {{ name }},
-      Start Time: {{ start_time }},
-      End Time: {{ end_time }}
-    </li>
-    {{/each}}
-  </ul>
+
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>ResourceID</th>
+        <th>Name</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each availableSlots}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{name}}</td>
+        <td>{{start_time}}</td>
+        <td>{{end_time}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </body>
 
 </html>
