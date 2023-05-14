@@ -141,7 +141,6 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     // Fetch the base availability information from the schedules table
     const baseAvailabilitys = await db.all("SELECT * FROM schedules");
-
     const bookedAppointments = await db.all("SELECT * FROM appointments");
 
     // Get the start and end dates from the request query parameters
@@ -151,6 +150,8 @@ app.get("/appointmentAvailability", async (req, res) => {
     const nurseTime = req.query.nurseTime;
     const psychologistTime = req.query.psychologistTime;
     const roomTime = req.query.roomTime;
+    const psychologistName = req.query.psychologistName;
+    const roomName = req.query.roomName;
 
 
     const availableSlots = [];
@@ -230,7 +231,7 @@ app.get("/appointmentAvailability", async (req, res) => {
         });
       }
 
-      if(psychologistTime){
+      if (psychologistTime) {
         availableDaySlots = availableDaySlots.filter((slot) => {
           const slotType = slot.type;
 
@@ -244,7 +245,7 @@ app.get("/appointmentAvailability", async (req, res) => {
         });
       }
 
-      if(roomTime){
+      if (roomTime) {
         availableDaySlots = availableDaySlots.filter((slot) => {
           const slotType = slot.type;
 
@@ -258,13 +259,29 @@ app.get("/appointmentAvailability", async (req, res) => {
         });
       }
 
+      if (psychologistName) {
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotName = slot.name;
+          const slotType = slot.type;
+          if (slotType === "Psychologist") {
+            return slotName === psychologistName;
+          } else {
+            return true;
+          }
+        });
+      }
 
-
-
-
-
-
-
+      if(roomName) {
+        availableDaySlots = availableDaySlots.filter((slot) => {
+          const slotName = slot.name;
+          const slotType = slot.type;
+          if (slotType === "Room") {
+            return slotName === roomName;
+          } else {
+            return true;
+          }
+        });
+      }
 
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
@@ -277,10 +294,18 @@ app.get("/appointmentAvailability", async (req, res) => {
       });
     });
 
+
+    //update this with a function rather than hardcoding the options
+    const dropDownOptions = {
+      roomNames: ['room1', 'room2'],
+      psychologistNames: ['psychologist1', 'psychologist2', 'psychologist3', 'psychologist4', 'psychologist5', 'psychologist6', 'psychologist7', 'psychologist8'],
+    }
+
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
       availableSlots,
-      startDate,
+      dropDownOptions,
+
     });
   } catch (err) {
     console.error("Failed to retrieve appointment availability:", err);
