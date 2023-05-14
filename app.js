@@ -136,50 +136,62 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     // Fetch the base availability information from the schedules table
     const baseAvailabilitys = await db.all("SELECT * FROM schedules");
+
     const bookedAppointments = await db.all("SELECT * FROM appointments");
+
+    // Get the start and end dates from the request query parameters
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
     const availableSlots = [];
 
     baseAvailabilitys.forEach((baseAvailability) => {
-
       const resourceDayAppointmentArray = [];
       bookedAppointments.forEach((bookedAppointment) => {
-
-
         const appointmentDate = bookedAppointment.start_time.split("T")[0];
         const availabilityDate = baseAvailability.start_time.split("T")[0];
 
-        if (appointmentDate === availabilityDate && (bookedAppointment.researcher_id === baseAvailability.bookable_thing_id || 
-          bookedAppointment.room_id === baseAvailability.bookable_thing_id ||
-          bookedAppointment.nurse_id === baseAvailability.bookable_thing_id ||
-          bookedAppointment.psychologist_id === baseAvailability.bookable_thing_id )) {
-
+        if (
+          appointmentDate === availabilityDate &&
+          (bookedAppointment.researcher_id === baseAvailability.bookable_thing_id ||
+            bookedAppointment.room_id === baseAvailability.bookable_thing_id ||
+            bookedAppointment.nurse_id === baseAvailability.bookable_thing_id ||
+            bookedAppointment.psychologist_id === baseAvailability.bookable_thing_id)
+        ) {
           const appointmentStart = bookedAppointment.start_time;
           const appointmentEnd = bookedAppointment.end_time;
 
           const bookedTimes = {
             start: appointmentStart,
-            end: appointmentEnd
-          }
+            end: appointmentEnd,
+          };
 
-          resourceDayAppointmentArray.push(bookedTimes)
+          resourceDayAppointmentArray.push(bookedTimes);
         }
-      })
+      });
 
-      let availableDaySlots = calculateAvailableSlots(baseAvailability.start_time, baseAvailability.end_time, resourceDayAppointmentArray)
+      let availableDaySlots = calculateAvailableSlots(
+        baseAvailability.start_time,
+        baseAvailability.end_time,
+        resourceDayAppointmentArray
+      );
+
+      // Filter the available slots based on the start and end dates
+      availableDaySlots = availableDaySlots.filter((slot) => {
+        const slotDate = slot.start.split("T")[0];
+        return slotDate >= startDate && slotDate <= endDate;
+      });
 
       availableDaySlots.forEach((slot) => {
-
         availableSlots.push({
           id: baseAvailability.bookable_thing_id,
           name: baseAvailability.name,
           type: baseAvailability.type,
           start_time: slot.start,
           end_time: slot.end,
-
-        })
-      })
-    })
+        });
+      });
+    });
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -187,12 +199,10 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
   } catch (err) {
     console.error("Failed to retrieve appointment availability:", err);
-    res
-      .status(500)
-      .render("error", {
-        title: "Error",
-        message: "Failed to retrieve appointment availability",
-      });
+    res.status(500).render("error", {
+      title: "Error",
+      message: "Failed to retrieve appointment availability",
+    });
   }
 });
 
