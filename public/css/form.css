@@ -3,6 +3,7 @@ form {
     flex-direction: column;
     max-width: 300px;
     margin: 0 auto;
+    padding: 20px;
   }
   
   label {
@@ -29,3 +30,4 @@ form {
   button[type="submit"]:hover {
     background-color: #45a049;
   }
+

@@ -6,29 +6,31 @@ body{
     padding: 0;
   }
   
-  nav {
-    background-color: #333;
-    color: #fff;
-  }
-  
-  nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  nav ul li {
-    display: inline-block;
-    margin-right: 10px;
-  }
-  
-  nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    padding: 10px;
-  }
-  
-  nav ul li a:hover {
-    background-color: #555;
-  }
+/* Navigation Bar Styling */
+nav {
+  background-color: #4287f5;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  display: inline-block;
+}
+
+nav a {
+  display: block;
+  padding: 15px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #0d5ab6;
+}
   
