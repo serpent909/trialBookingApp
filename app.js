@@ -57,12 +57,9 @@ require("./modules/database.js");
 
 
 
-
-
-
 // APIs
 app.get("/", (req, res) => {
-  res.render("home", { title: "My Website" });
+  res.render("home", { title: "Booking App" });
 });
 
 
@@ -155,6 +152,7 @@ app.get("/appointmentAvailability", async (req, res) => {
       );
 
 
+
       // Filter the available slots based form conditions
       availableDaySlots = filterSlots(startDate, endDate, availableDaySlots, resarcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
 
@@ -167,6 +165,7 @@ app.get("/appointmentAvailability", async (req, res) => {
           end_time: slot.end,
         });
       });
+
     });
 
 
@@ -200,7 +199,7 @@ app.post("/appointments", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    const {
+    let {
       participant_id,
       researcher_id,
       nurse_id,
@@ -210,6 +209,9 @@ app.post("/appointments", async (req, res) => {
       start_time,
       end_time
     } = req.body;
+
+    console.log(req.body)
+
 
     // Insert the new appointment into the appointments table
     await db.run(
@@ -222,6 +224,11 @@ app.post("/appointments", async (req, res) => {
     console.error('Failed to create appointment:', err);
     res.status(500).send("Failed to create appointment");
   }
+});
+
+
+app.get("/book-appointment", (req, res) => {
+  res.render("bookAppointment", { title: "Book Appointment" });
 });
 
 
@@ -348,7 +355,9 @@ function calculateAvailableSlots(availabilityType, availabilityName, availabilit
       availableSlots.push(availableSlot);
     }
 
-    currentSlotStart = appointmentEnd;
+    if (currentSlotStart < appointmentEnd) {
+      currentSlotStart = appointmentEnd;
+    }
   });
 
   if (currentSlotStart < end) {
