@@ -1,7 +1,11 @@
 
-//TODO: 
+
+//DONE:
 //Restructure SQL tables to remove repitition of id's
 //Reactor code to use new tables
+
+
+//TODO: 
 //Refactor code with improved naming conventions and seperation of concerns
 //Add logic to store appointment times in the db for each resource based on the main appointment time and type
 //Add logic to prevent double booking of resources
