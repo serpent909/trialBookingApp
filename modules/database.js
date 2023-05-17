@@ -100,14 +100,14 @@ async function populateSchedules(db) {
     const scheduleEntries = generateScheduleEntries(availabilityJson, resourceId, resourceName, resourceType);
 
     // Clear availability table for the current resource
-    await db.run('DELETE FROM schedules WHERE name = ?', [resource.name]);
+    await db.run('DELETE FROM schedules WHERE bookable_thing_id = ?', [resourceId]);
 
 
     for (const entry of scheduleEntries) {
 
       await db.run(
-        'INSERT INTO schedules (bookable_thing_id, name, type, start_time, end_time) VALUES (?, ?, ?, ?, ?)',
-        [entry.bookable_thing_id, entry.name, entry.type, entry.start_time, entry.end_time]
+        'INSERT INTO schedules (bookable_thing_id, start_time, end_time) VALUES (?,?, ?)',
+        [entry.bookable_thing_id, entry.start_time, entry.end_time]
       );
     }
   }
