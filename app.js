@@ -90,7 +90,7 @@ app.get("/schedules", async (req, res) => {
     const offset = (page - 1) * limit; // Calculate the offset
 
     // Fetch the schedules for the current page with LIMIT and OFFSET
-    const schedules = await db.all(`SELECT * FROM schedules LIMIT ${limit} OFFSET ${offset}`);
+    const schedules = await db.all(`SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id LIMIT ${limit} OFFSET ${offset}`);
 
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
@@ -114,10 +114,6 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    // Fetch the base availability information from the schedules table
-    const baseAvailabilitys = await db.all("SELECT * FROM schedules");
-    const bookedAppointments = await db.all("SELECT * FROM appointments");
-
     // Get the start and end dates from the request query parameters
     const startDate = req.query.startDate;
     const endDate = req.query.endDate;
@@ -128,21 +124,23 @@ app.get("/appointmentAvailability", async (req, res) => {
     const psychologistName = req.query.psychologistName;
     const roomName = req.query.roomName;
 
+    // Fetch the base availability information from the schedules table
+    const baseAvailabilitySchedules = await db.all(
+      "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
+    );
+    const bookedTimes = await db.all("SELECT * FROM booked_times");
 
     const availableSlots = [];
 
-    baseAvailabilitys.forEach((baseAvailability) => {
+    baseAvailabilitySchedules.forEach((baseAvailabilitySchedule) => {
       const resourceDayAppointmentArray = [];
-      bookedAppointments.forEach((bookedAppointment) => {
+      bookedTimes.forEach((bookedAppointment) => {
         const appointmentDate = bookedAppointment.start_time.split("T")[0];
-        const availabilityDate = baseAvailability.start_time.split("T")[0];
+        const availabilityDate = baseAvailabilitySchedule.start_time.split("T")[0];
 
         if (
           appointmentDate === availabilityDate &&
-          (bookedAppointment.researcher_id === baseAvailability.bookable_thing_id ||
-            bookedAppointment.room_id === baseAvailability.bookable_thing_id ||
-            bookedAppointment.nurse_id === baseAvailability.bookable_thing_id ||
-            bookedAppointment.psychologist_id === baseAvailability.bookable_thing_id)
+          bookedAppointment.bookable_thing_id === baseAvailabilitySchedule.bookable_thing_id
         ) {
           const appointmentStart = bookedAppointment.start_time;
           const appointmentEnd = bookedAppointment.end_time;
@@ -158,10 +156,10 @@ app.get("/appointmentAvailability", async (req, res) => {
       });
 
       let availableDaySlots = calculateAvailableSlots(
-        baseAvailability.type,
-        baseAvailability.name,
-        baseAvailability.start_time,
-        baseAvailability.end_time,
+        baseAvailabilitySchedule.type,
+        baseAvailabilitySchedule.name,
+        baseAvailabilitySchedule.start_time,
+        baseAvailabilitySchedule.end_time,
         resourceDayAppointmentArray
       );
 
@@ -172,9 +170,9 @@ app.get("/appointmentAvailability", async (req, res) => {
 
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
-          id: baseAvailability.bookable_thing_id,
-          name: baseAvailability.name,
-          type: baseAvailability.type,
+          id: baseAvailabilitySchedule.bookable_thing_id,
+          name: baseAvailabilitySchedule.name,
+          type: baseAvailabilitySchedule.type,
           start_time: slot.start,
           end_time: slot.end,
         });
@@ -228,10 +226,36 @@ app.post("/appointments", async (req, res) => {
 
 
     // Insert the new appointment into the appointments table
-    await db.run(
-      "INSERT INTO appointments (participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time]
-    );
+    await db.run('BEGIN TRANSACTION');
+
+    try {
+      // First, insert into the appointments table
+      let result = await db.run(
+        "INSERT INTO appointments (participant_id, appointment_type_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+        [participant_id, appointment_type_id, start_time, end_time]
+      );
+
+      // Get the id of the appointment just inserted
+      let appointment_id = result.lastID;
+
+      // Array of bookable things
+      let bookable_things = [researcher_id, nurse_id, psychologist_id, room_id];
+
+      // Loop through each bookable thing and insert into the booked_times table
+      for (let i = 0; i < bookable_things.length; i++) {
+        await db.run(
+          "INSERT INTO booked_times (appointment_id, bookable_thing_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+          [appointment_id, bookable_things[i], start_time, end_time]
+        );
+      }
+
+      // If all operations were successful, commit the transaction
+      await db.run('COMMIT');
+    } catch (error) {
+      // If any operation fails, rollback the transaction
+      await db.run('ROLLBACK');
+      throw error; // Rethrow the error to be handled by the caller
+    }
 
     res.status(200).send("Appointment created successfully");
   } catch (err) {

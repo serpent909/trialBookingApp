@@ -2,18 +2,9 @@ CREATE TABLE IF NOT EXISTS
     appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         participant_id INTEGER NOT NULL,
-        researcher_id INTEGER,
-        nurse_id INTEGER,
-        psychologist_id INTEGER,
-        room_id INTEGER,
         appointment_type_id INTEGER NOT NULL,
         start_time TEXT NOT NULL,
-        end_time TEXT NOT NULL,
-        FOREIGN KEY (researcher_id) REFERENCES bookable_things (id),
-        FOREIGN KEY (nurse_id) REFERENCES bookable_things (id),
-        FOREIGN KEY (psychologist_id) REFERENCES bookable_things (id),
-        FOREIGN KEY (room_id) REFERENCES bookable_things (id),
-        UNIQUE (participant_id, appointment_type_id)
+        end_time TEXT NOT NULL
     );
 
 -- Create the 'bookable_things' table
@@ -89,8 +80,6 @@ CREATE TABLE IF NOT EXISTS booked_times (
 CREATE TABLE IF NOT EXISTS schedules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bookable_thing_id INTEGER,
-    name TEXT,
-    type TEXT,
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     FOREIGN KEY (bookable_thing_id) REFERENCES bookable_things(id)
