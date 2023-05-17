@@ -11,7 +11,7 @@
 <body>
     <h1>Book Appointment</h1>
 
-    <form action="/appointments" method="POST">
+    <form action="/appointments" method="POST" id="appointmentForm">
         <label for="participant_id">Participant ID:</label>
         <input type="text" id="participant_id" name="participant_id" required>
 
@@ -30,41 +30,37 @@
         <label for="appointment_type_id">Appointment Type ID:</label>
         <input type="text" id="appointment_type_id" name="appointment_type_id" required>
 
-        <label for="start_time">Start Time:</label>
-        <input type="datetime-local" id="start_time" name="start_time" required>
+        <label for="unformatted_start_time">Start Time:</label>
+        <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required>
 
-        <label for="end_time">End Time:</label>
-        <input type="datetime-local" id="end_time" name="end_time" required>
+        <label for="unformatted_end_time">End Time:</label>
+        <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required>
 
-        <!-- Hidden fields with desired format -->
-        <input type="hidden" id="formatted_start_time" name="formatted_start_time">
-        <input type="hidden" id="formatted_end_time" name="formatted_end_time">
+        <!-- Hidden fields for the server -->
+        <input type="hidden" id="start_time" name="start_time">
+        <input type="hidden" id="end_time" name="end_time">
 
         <button type="submit">Book Appointment</button>
     </form>
 
     <script>
-        // Convert and set the formatted start and end time values
-        const startInput = document.getElementById('start_time');
-        const endInput = document.getElementById('end_time');
-        const formattedStartInput = document.getElementById('formatted_start_time');
-        const formattedEndInput = document.getElementById('formatted_end_time');
+        const form = document.getElementById('appointmentForm');
+        const startInput = document.getElementById('unformatted_start_time');
+        const endInput = document.getElementById('unformatted_end_time');
+        const formattedStartInput = document.getElementById('start_time');
+        const formattedEndInput = document.getElementById('end_time');
 
-        startInput.addEventListener('input', updateFormattedStartTime);
-        endInput.addEventListener('input', updateFormattedEndTime);
+        form.addEventListener('submit', function(event) {
+            // Format the start and end times for the hidden inputs
+            const formattedStartTime = `${startInput.value}:00.000Z`;
+            const formattedEndTime = `${endInput.value}:00.000Z`;
 
-        function updateFormattedStartTime() {
-            const startValue = startInput.value;
-            const formattedStartTime = `${startValue}:00.000Z`;
+            // Set the values of the hidden inputs
             formattedStartInput.value = formattedStartTime;
-        }
-
-        function updateFormattedEndTime() {
-            const endValue = endInput.value;
-            const formattedEndTime = `${endValue}:00.000Z`;
             formattedEndInput.value = formattedEndTime;
-        }
+        });
     </script>
+
 </body>
 
 </html>

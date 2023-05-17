@@ -1,5 +1,3 @@
-
-
 //DONE:
 //Restructure SQL tables to remove repitition of id's
 //Reactor code to use new tables
@@ -33,12 +31,13 @@ app.engine(
     defaultLayout: "main",
     helpers: {
       formatTime: function (dateTime) {
-        const date = new Date(dateTime.slice(0, -1));
+        console.log(dateTime)
+        const date = new Date(dateTime.slice(0,-1));
         const options = {
           month: 'long',
           day: 'numeric',
           hour: 'numeric',
-          minute: '2-digit'
+          minute: '2-digit',
         };
         return date.toLocaleString('en-US', options);
       },
@@ -80,7 +79,6 @@ app.get("/", (req, res) => {
   res.render("home", { title: "Booking App" });
 });
 
-
 //get the base schedules of the resources
 app.get("/schedules", async (req, res) => {
   try {
@@ -89,9 +87,10 @@ app.get("/schedules", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    let page = parseInt(req.query.page) || 1; // Convert the page number to an integer (default: 1)
-    const limit = 100; // Number of rows to display per page
-    const offset = (page - 1) * limit; // Calculate the offset
+    // Pagination
+    let page = parseInt(req.query.page) || 1;
+    const limit = 100;
+    const offset = (page - 1) * limit;
 
     // Fetch the schedules for the current page with LIMIT and OFFSET
     const schedules = await db.all(`SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id LIMIT ${limit} OFFSET ${offset}`);
@@ -99,8 +98,7 @@ app.get("/schedules", async (req, res) => {
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
     const totalSchedules = countResult.count;
-
-    const totalPages = Math.ceil(totalSchedules / limit); // Calculate the total number of pages
+    const totalPages = Math.ceil(totalSchedules / limit);
 
     res.render("schedules", { title: "My Website", schedules, page, totalPages });
   } catch (err) {
@@ -118,15 +116,8 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    // Get the start and end dates from the request query parameters
-    const startDate = req.query.startDate;
-    const endDate = req.query.endDate;
-    const resarcherTime = req.query.researcherTime;
-    const nurseTime = req.query.nurseTime;
-    const psychologistTime = req.query.psychologistTime;
-    const roomTime = req.query.roomTime;
-    const psychologistName = req.query.psychologistName;
-    const roomName = req.query.roomName;
+    // Get the query parameters
+    const { startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
 
     // Fetch the base availability information from the schedules table
     const baseAvailabilitySchedules = await db.all(
@@ -136,59 +127,53 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const availableSlots = [];
 
-    baseAvailabilitySchedules.forEach((baseAvailabilitySchedule) => {
-      const resourceDayAppointmentArray = [];
-      bookedTimes.forEach((bookedAppointment) => {
-        const appointmentDate = bookedAppointment.start_time.split("T")[0];
-        const availabilityDate = baseAvailabilitySchedule.start_time.split("T")[0];
-
-        if (
-          appointmentDate === availabilityDate &&
-          bookedAppointment.bookable_thing_id === baseAvailabilitySchedule.bookable_thing_id
-        ) {
-          const appointmentStart = bookedAppointment.start_time;
-          const appointmentEnd = bookedAppointment.end_time;
-
-          const bookedTimes = {
-
-            start: appointmentStart,
-            end: appointmentEnd,
-          };
-
-          resourceDayAppointmentArray.push(bookedTimes);
-        }
-      });
-
+    const filteredBookedTimes = bookedTimes.map(appointment => ({
+      ...appointment,
+      appointmentDate: appointment.start_time.split("T")[0],
+    }));
+    
+    baseAvailabilitySchedules.forEach((baseSchedule) => {
+      const resourceDayAppointmentArray = filteredBookedTimes
+        .filter(appointment => 
+          appointment.appointmentDate === baseSchedule.start_time.split("T")[0] && appointment.bookable_thing_id === baseSchedule.bookable_thing_id
+        ).map(({ start_time, end_time }) => ({ start: start_time, end: end_time }));
+    
       let availableDaySlots = calculateAvailableSlots(
-        baseAvailabilitySchedule.type,
-        baseAvailabilitySchedule.name,
-        baseAvailabilitySchedule.start_time,
-        baseAvailabilitySchedule.end_time,
+        baseSchedule.type,
+        baseSchedule.name,
+        baseSchedule.start_time,
+        baseSchedule.end_time,
         resourceDayAppointmentArray
       );
-
-
-
-      // Filter the available slots based form conditions
-      availableDaySlots = filterSlots(startDate, endDate, availableDaySlots, resarcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
-
+    
+      availableDaySlots = filterSlots(
+        startDate, 
+        endDate, 
+        availableDaySlots, 
+        researcherTime, 
+        nurseTime, 
+        psychologistTime, 
+        roomTime, 
+        psychologistName, 
+        roomName
+      );
+    
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
-          id: baseAvailabilitySchedule.bookable_thing_id,
-          name: baseAvailabilitySchedule.name,
-          type: baseAvailabilitySchedule.type,
+          id: baseSchedule.bookable_thing_id,
+          name: baseSchedule.name,
+          type: baseSchedule.type,
           start_time: slot.start,
           end_time: slot.end,
         });
       });
-
     });
 
-
     //update this with a function rather than hardcoding the options
+    const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
-      roomNames: ['room1', 'room2'],
-      psychologistNames: ['psychologist1', 'psychologist2', 'psychologist3', 'psychologist4', 'psychologist5', 'psychologist6', 'psychologist7', 'psychologist8'],
+      roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
+      psychologistNames: rows.filter(row => row.type === 'Psychologist').map(row => row.name),
     }
 
     res.render("appointmentAvailability", {
@@ -241,6 +226,7 @@ app.post("/appointments", async (req, res) => {
 
       // Get the id of the appointment just inserted
       let appointment_id = result.lastID;
+      console.log(result)
 
       // Array of bookable things
       let bookable_things = [researcher_id, nurse_id, psychologist_id, room_id];
@@ -253,7 +239,6 @@ app.post("/appointments", async (req, res) => {
         );
       }
 
-      // If all operations were successful, commit the transaction
       await db.run('COMMIT');
     } catch (error) {
       // If any operation fails, rollback the transaction
@@ -274,7 +259,6 @@ app.get("/book-appointment", (req, res) => {
 });
 
 
-
 // Start the server running.
 app.listen(port, function () {
   console.log(`App listening on port ${port}!`);
@@ -283,7 +267,9 @@ app.listen(port, function () {
 
 
 
-function filterSlots(startDate, endDate, availableDaySlots, resarcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
+
+
+function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
   if (startDate && endDate) {
     availableDaySlots = availableDaySlots.filter((slot) => {
       const slotDate = slot.start.split("T")[0];
@@ -292,14 +278,14 @@ function filterSlots(startDate, endDate, availableDaySlots, resarcherTime, nurse
   }
 
 
-  if (resarcherTime) {
+  if (researcherTime) {
     availableDaySlots = availableDaySlots.filter((slot) => {
       const slotType = slot.type;
 
       if (slotType === "Researcher") {
         const slotStart = new Date(slot.start);
         const slotEnd = new Date(slot.end);
-        return (slotEnd - slotStart) >= resarcherTime * 60 * 60 * 1000;
+        return (slotEnd - slotStart) >= researcherTime * 60 * 60 * 1000;
       } else {
         return true;
       }
