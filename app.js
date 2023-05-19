@@ -1,11 +1,13 @@
 //DONE:
 //Restructure SQL tables to remove repitition of id's
 //Reactor code to use new tables
+//Time and date formatting
 
 
 //TODO: 
-//Refactor code with improved naming conventions and seperation of concerns
+
 //Add logic to store appointment times in the db for each resource based on the main appointment time and type
+//Refactor code with improved naming conventions and seperation of concerns
 //Add logic to prevent double booking of resources
 //Improve available appointments view by incorporating appointment type logic and participant id
 //Potentially generate available slots in 15-minute increments?
@@ -19,6 +21,10 @@ const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
 const app = express();
 const port = 3000;
+const fs = require("fs");
+const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
+
+const moment = require('moment');
 
 const handlebars = require("express-handlebars");
 const path = require("path");
@@ -31,15 +37,17 @@ app.engine(
     defaultLayout: "main",
     helpers: {
       formatTime: function (dateTime) {
-        console.log(dateTime)
-        const date = new Date(dateTime.slice(0,-1));
-        const options = {
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        };
-        return date.toLocaleString('en-US', options);
+
+
+        const [datePart, timePart] = dateTime.split('T');
+        const [year, month, day] = datePart.split('-');
+        const [hour, minute] = timePart.split(':');
+
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        const formattedDate = `${months[parseInt(month, 10) - 1]} ${day}, ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+
+        return formattedDate;
       },
       gt: function (value1, value2) {
         return value1 > value2;
@@ -100,7 +108,7 @@ app.get("/schedules", async (req, res) => {
     const totalSchedules = countResult.count;
     const totalPages = Math.ceil(totalSchedules / limit);
 
-    res.render("schedules", { title: "My Website", schedules, page, totalPages });
+    res.render("schedules", { title: "Booking App", schedules, page, totalPages });
   } catch (err) {
     console.error('Failed to retrieve schedules:', err);
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve schedules" });
@@ -116,8 +124,10 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+
     // Get the query parameters
     const { startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
+
 
     // Fetch the base availability information from the schedules table
     const baseAvailabilitySchedules = await db.all(
@@ -127,17 +137,23 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const availableSlots = [];
 
+   
+
     const filteredBookedTimes = bookedTimes.map(appointment => ({
       ...appointment,
       appointmentDate: appointment.start_time.split("T")[0],
     }));
-    
+
+   
+
     baseAvailabilitySchedules.forEach((baseSchedule) => {
       const resourceDayAppointmentArray = filteredBookedTimes
-        .filter(appointment => 
+        .filter(appointment =>
           appointment.appointmentDate === baseSchedule.start_time.split("T")[0] && appointment.bookable_thing_id === baseSchedule.bookable_thing_id
         ).map(({ start_time, end_time }) => ({ start: start_time, end: end_time }));
-    
+
+  
+
       let availableDaySlots = calculateAvailableSlots(
         baseSchedule.type,
         baseSchedule.name,
@@ -145,19 +161,20 @@ app.get("/appointmentAvailability", async (req, res) => {
         baseSchedule.end_time,
         resourceDayAppointmentArray
       );
-    
+
       availableDaySlots = filterSlots(
-        startDate, 
-        endDate, 
-        availableDaySlots, 
-        researcherTime, 
-        nurseTime, 
-        psychologistTime, 
-        roomTime, 
-        psychologistName, 
+        startDate,
+        endDate,
+        availableDaySlots,
+        researcherTime,
+        nurseTime,
+        psychologistTime,
+        roomTime,
+        psychologistName,
         roomName
       );
-    
+
+
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
           id: baseSchedule.bookable_thing_id,
@@ -211,7 +228,6 @@ app.post("/appointments", async (req, res) => {
       end_time
     } = req.body;
 
-    console.log(req.body)
 
 
     // Insert the new appointment into the appointments table
@@ -226,16 +242,57 @@ app.post("/appointments", async (req, res) => {
 
       // Get the id of the appointment just inserted
       let appointment_id = result.lastID;
-      console.log(result)
+
+
+      // Helper function to calculate the start and end times
+      function calculateTime(resource, appointmentType, originalStartTime) {
+        let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
+        let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
+        let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DDTHH:mm');
+        let calculatedEndTime = moment(calculatedStartTime).add(duration, 'minutes').format('YYYY-MM-DDTHH:mm');
+
+        return { calculatedStartTime, calculatedEndTime };
+      }
+
+      // Main function to adjust the times
+      function adjustTimes(appointmentType, resourceId, originalStartTime) {
+        let resource;
+
+        // Determine the resource based on the resourceId
+        if (resourceId === 1) {
+          resource = 'researcher';
+        } else if (resourceId === 2) {
+          resource = 'nurse';
+        } else if ([5, 6, 7, 8, 9, 10, 11, 12].includes(resourceId)) {
+          resource = 'psychologist';
+        } else if (resourceId === 3 || resourceId === 4) {
+          resource = 'room';
+        }
+
+        // Calculate the new start and end times
+        let result = calculateTime(resource, appointmentType, originalStartTime);
+
+        // Return the new start and end times
+        return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };
+      }
 
       // Array of bookable things
       let bookable_things = [researcher_id, nurse_id, psychologist_id, room_id];
 
+
       // Loop through each bookable thing and insert into the booked_times table
       for (let i = 0; i < bookable_things.length; i++) {
+
+        if (appointment_type_id === 1 && !bookable_things[i]) {
+          continue;
+        }
+
+        let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], start_time, end_time);
+      
+
         await db.run(
           "INSERT INTO booked_times (appointment_id, bookable_thing_id, start_time, end_time) VALUES (?, ?, ?, ?)",
-          [appointment_id, bookable_things[i], start_time, end_time]
+          [appointment_id, bookable_things[i], newStartTime, newEndTime]
         );
       }
 
@@ -270,6 +327,7 @@ app.listen(port, function () {
 
 
 function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
+
   if (startDate && endDate) {
     availableDaySlots = availableDaySlots.filter((slot) => {
       const slotDate = slot.start.split("T")[0];
@@ -283,8 +341,8 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Researcher") {
-        const slotStart = new Date(slot.start);
-        const slotEnd = new Date(slot.end);
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
         return (slotEnd - slotStart) >= researcherTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -298,8 +356,8 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Nurse") {
-        const slotStart = new Date(slot.start);
-        const slotEnd = new Date(slot.end);
+        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
+        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
         return (slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -312,8 +370,8 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Psychologist") {
-        const slotStart = new Date(slot.start);
-        const slotEnd = new Date(slot.end);
+        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
+        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
         return (slotEnd - slotStart) >= psychologistTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -326,8 +384,8 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Room") {
-        const slotStart = new Date(slot.start);
-        const slotEnd = new Date(slot.end);
+        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
+        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
         return (slotEnd - slotStart) >= roomTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -363,22 +421,23 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
 
 
 function calculateAvailableSlots(availabilityType, availabilityName, availabilityStart, availabilityEnd, resourceDayAppointmentArray) {
-  const start = new Date(availabilityStart);
-  const end = new Date(availabilityEnd);
+
+  const start = moment(availabilityStart).format('YYYY-MM-DDTHH:mm');
+  const end = moment(availabilityEnd).format('YYYY-MM-DDTHH:mm');
   const availableSlots = [];
 
   let currentSlotStart = start;
 
   resourceDayAppointmentArray.forEach((appointment) => {
-    const appointmentStart = new Date(appointment.start);
-    const appointmentEnd = new Date(appointment.end);
+    const appointmentStart = moment(appointment.start).format('YYYY-MM-DDTHH:mm');
+    const appointmentEnd = moment(appointment.end).format('YYYY-MM-DDTHH:mm');
 
     if (currentSlotStart < appointmentStart) {
       const availableSlot = {
         type: availabilityType,
         name: availabilityName,
-        start: currentSlotStart.toISOString(),
-        end: appointmentStart.toISOString()
+        start: currentSlotStart,
+        end: appointmentStart
       };
       availableSlots.push(availableSlot);
     }
@@ -392,11 +451,13 @@ function calculateAvailableSlots(availabilityType, availabilityName, availabilit
     const availableSlot = {
       type: availabilityType,
       name: availabilityName,
-      start: currentSlotStart.toISOString(),
-      end: end.toISOString()
+      start: currentSlotStart,
+      end: end
     };
     availableSlots.push(availableSlot);
   }
+
+  console.log(availableSlots)
 
   return availableSlots;
 }
