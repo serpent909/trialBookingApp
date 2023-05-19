@@ -137,14 +137,14 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const availableSlots = [];
 
-   
+   console.log(baseAvailabilitySchedules)
 
     const filteredBookedTimes = bookedTimes.map(appointment => ({
       ...appointment,
       appointmentDate: appointment.start_time.split("T")[0],
     }));
 
-   
+
 
     baseAvailabilitySchedules.forEach((baseSchedule) => {
       const resourceDayAppointmentArray = filteredBookedTimes
@@ -162,6 +162,8 @@ app.get("/appointmentAvailability", async (req, res) => {
         resourceDayAppointmentArray
       );
 
+
+
       availableDaySlots = filterSlots(
         startDate,
         endDate,
@@ -177,6 +179,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
       availableDaySlots.forEach((slot) => {
         availableSlots.push({
+    
           id: baseSchedule.bookable_thing_id,
           name: baseSchedule.name,
           type: baseSchedule.type,
@@ -343,6 +346,7 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       if (slotType === "Researcher") {
         const slotStart = moment(slot.start);
         const slotEnd = moment(slot.end);
+
         return (slotEnd - slotStart) >= researcherTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -356,8 +360,9 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Nurse") {
-        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
-        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
+        console.log((slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000)
         return (slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -370,8 +375,8 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
       const slotType = slot.type;
 
       if (slotType === "Psychologist") {
-        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
-        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
         return (slotEnd - slotStart) >= psychologistTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -380,12 +385,14 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
   }
 
   if (roomTime) {
+
     availableDaySlots = availableDaySlots.filter((slot) => {
       const slotType = slot.type;
 
       if (slotType === "Room") {
-        const slotStart = moment(slot.start).format('YYYY-MM-DDTHH:mm');
-        const slotEnd = moment(slot.end).format('YYYY-MM-DDTHH:mm');
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
+   
         return (slotEnd - slotStart) >= roomTime * 60 * 60 * 1000;
       } else {
         return true;
@@ -456,8 +463,6 @@ function calculateAvailableSlots(availabilityType, availabilityName, availabilit
     };
     availableSlots.push(availableSlot);
   }
-
-  console.log(availableSlots)
 
   return availableSlots;
 }
