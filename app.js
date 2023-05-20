@@ -196,6 +196,8 @@ app.post("/appointments", async (req, res) => {
 
       // Helper function to calculate the start and end times
       function calculateTime(resource, appointmentType, originalStartTime) {
+
+
         let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
         let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
         let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DDTHH:mm');
@@ -206,6 +208,7 @@ app.post("/appointments", async (req, res) => {
 
       // Main function to adjust the times
       function adjustTimes(appointmentType, resourceId, originalStartTime) {
+        console.log(appointmentType, resourceId, originalStartTime)
         let resource;
 
         // Determine the resource based on the resourceId
@@ -238,7 +241,6 @@ app.post("/appointments", async (req, res) => {
         }
 
         let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], start_time, end_time);
-
 
         await db.run(
           "INSERT INTO booked_times (appointment_id, bookable_thing_id, start_time, end_time) VALUES (?, ?, ?, ?)",
