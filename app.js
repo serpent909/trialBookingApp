@@ -2,12 +2,11 @@
 //Restructure SQL tables to remove repitition of id's
 //Reactor code to use new tables
 //Time and date formatting
+//Add logic to store appointment times in the db for each resource based on the main appointment time and type
+//Refactor code with improved naming conventions and seperation of concerns
 
 
 //TODO: 
-
-//Add logic to store appointment times in the db for each resource based on the main appointment time and type
-//Refactor code with improved naming conventions and seperation of concerns
 //Add logic to prevent double booking of resources
 //Improve available appointments view by incorporating appointment type logic and participant id
 //Potentially generate available slots in 15-minute increments?
@@ -21,10 +20,6 @@ const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
 const app = express();
 const port = 3000;
-const fs = require("fs");
-const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
-
-const moment = require('moment');
 
 const handlebars = require("express-handlebars");
 const path = require("path");
@@ -40,7 +35,6 @@ app.engine(
     defaultLayout: "main",
     helpers: {
       formatTime: function (dateTime) {
-
 
         const [datePart, timePart] = dateTime.split('T');
         const [year, month, day] = datePart.split('-');
@@ -83,12 +77,11 @@ app.use(express.static(path.join(__dirname, "public")));
 // Require and run database.js
 require("./modules/database.js");
 
-
-
 // APIs
 app.get("/", (req, res) => {
   res.render("home", { title: "Booking App" });
 });
+
 
 //get the base schedules of the resources
 app.get("/schedules", async (req, res) => {
@@ -130,8 +123,7 @@ app.get("/appointmentAvailability", async (req, res) => {
     // Get the query parameters
     const { startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
 
-
-    //update this with a function rather than hardcoding the options
+    //populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
       roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
@@ -142,8 +134,8 @@ app.get("/appointmentAvailability", async (req, res) => {
     const baseAvailabilitySchedules = await db.all(
       "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
     );
-    const bookedTimes = await db.all("SELECT * FROM booked_times");
 
+    const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
 
     res.render("appointmentAvailability", {
@@ -160,6 +152,7 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
   }
 });
+
 
 //Add an appointment to the database
 app.post("/appointments", async (req, res) => {
