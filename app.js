@@ -41,7 +41,6 @@ app.engine(
         const [hour, minute] = timePart.split(':');
 
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
         const formattedDate = `${months[parseInt(month, 10) - 1]} ${day}, ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
 
         return formattedDate;
