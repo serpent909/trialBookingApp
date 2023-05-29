@@ -76,6 +76,28 @@ app.use(express.static(path.join(__dirname, "public")));
 // Require and run database.js
 require("./modules/database.js");
 
+//Global variables
+app.locals.siteName = "Booking App";
+const psychologistIds = [
+  { id: 5, name: "Psychologist 1" },
+  { id: 6, name: "Psychologist 2" },
+  { id: 7, name: "Psychologist 3" },
+  { id: 8, name: "Psychologist 4" },
+  { id: 9, name: "Psychologist 5" },
+  { id: 10, name: "Psychologist 6" },
+  { id: 11, name: "Psychologist 7" },
+  { id: 12, name: "Psychologist 8" },
+];
+app.locals.psychologist_ids = psychologistIds;
+const roomIds = [
+  { id: 3, name: "Room 1" },
+  { id: 4, name: "Room 2" },
+]
+app.locals.room_ids = roomIds;
+app.locals.appointment_type_ids = [1,2,3];
+const participantIds = Array.from({ length: 40 }, (_, i) => i + 1);
+app.locals.participant_ids = participantIds;
+
 // APIs
 app.get("/", (req, res) => {
   res.render("home", { title: "Booking App" });
@@ -161,10 +183,11 @@ app.post("/appointments", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+    const researcher_id = 1;
+    const nurse_id = 2;
+
     let {
       participant_id,
-      researcher_id,
-      nurse_id,
       psychologist_id,
       room_id,
       appointment_type_id,
@@ -172,14 +195,15 @@ app.post("/appointments", async (req, res) => {
       end_time
     } = req.body;
 
+    //TODO: Tidy up parseInt
     await appointmentService.createAppointment(
       db,
-      participant_id,
+      parseInt(participant_id),
       researcher_id,
       nurse_id,
-      psychologist_id,
-      room_id,
-      appointment_type_id,
+      parseInt(psychologist_id),
+      parseInt(room_id),
+      parseInt(appointment_type_id),
       start_time,
       end_time
     );
@@ -193,7 +217,8 @@ app.post("/appointments", async (req, res) => {
 
 
 app.get("/book-appointment", (req, res) => {
-  res.render("bookAppointment", { title: "Book Appointment" });
+  
+  res.render("bookAppointment",  { title: "Book Appointment" });
 });
 
 

@@ -33,7 +33,6 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
         if (slotType === "Nurse") {
           const slotStart = moment(slot.start);
           const slotEnd = moment(slot.end);
-          console.log((slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000)
           return (slotEnd - slotStart) >= nurseTime * 60 * 60 * 1000;
         } else {
           return true;

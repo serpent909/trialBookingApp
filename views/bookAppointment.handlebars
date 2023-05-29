@@ -1,4 +1,3 @@
-<!-- bookAppointment.handlebars -->
 <!DOCTYPE html>
 <html>
 
@@ -6,6 +5,9 @@
     <meta charset="utf-8">
     <title>Book Appointment</title>
     <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/flatpickr.css">
+    <script src="/javascript/flatpickr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
 
 <body>
@@ -13,28 +15,42 @@
 
     <form action="/appointments" method="POST" id="appointmentForm">
         <label for="participant_id">Participant ID:</label>
-        <input type="text" id="participant_id" name="participant_id" required>
-
-        <label for="researcher_id">Researcher ID:</label>
-        <input type="text" id="researcher_id" name="researcher_id" required>
-
-        <label for="nurse_id">Nurse ID:</label>
-        <input type="text" id="nurse_id" name="nurse_id" required>
+        <select id="participant_id" name="participant_id" required>
+            <option value="">Select Participant</option>
+            {{#each participant_ids}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
 
         <label for="psychologist_id">Psychologist ID:</label>
-        <input type="text" id="psychologist_id" name="psychologist_id" required>
+        <select id="psychologist_id" name="psychologist_id">
+            <option value="">Select Psychologist</option>
+            {{#each psychologist_ids}}
+            <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
 
         <label for="room_id">Room ID:</label>
-        <input type="text" id="room_id" name="room_id" required>
+        <select id="room_id" name="room_id" required>
+            <option value="">Select Room</option>
+            {{#each room_ids}}
+            <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
 
-        <label for="appointment_type_id">Appointment Type ID:</label>
-        <input type="text" id="appointment_type_id" name="appointment_type_id" required>
+        <label for="appointment_type_id">Appointment Type:</label>
+        <select id="appointment_type_id" name="appointment_type_id" required>
+            <option value="">Select Appointment Type</option>
+            {{#each appointment_type_ids}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
 
         <label for="unformatted_start_time">Start Time:</label>
-        <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required>
+        <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required step="900">
 
         <label for="unformatted_end_time">End Time:</label>
-        <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required>
+        <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required step="900">
 
         <!-- Hidden fields for the server -->
         <input type="hidden" id="start_time" name="start_time">
@@ -50,15 +66,21 @@
         const formattedStartInput = document.getElementById('start_time');
         const formattedEndInput = document.getElementById('end_time');
 
-        form.addEventListener('submit', function(event) {
-            // Format the start and end times for the hidden inputs
-            const formattedStartTime = `${startInput.value}`;
-            const formattedEndTime = `${endInput.value}`;
+        // Format the start and end times for the hidden inputs
+        const formattedStartTime = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
+        const formattedEndTime = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
 
-            // Set the values of the hidden inputs
-            formattedStartInput.value = formattedStartTime;
-            formattedEndInput.value = formattedEndTime;
+        // Set the values of the hidden inputs
+        formattedStartInput.value = formattedStartTime;
+        formattedEndInput.value = formattedEndTime;
+
+
+        form.addEventListener('submit', function (event) {
+            // Format the start and end times for the hidden inputs
+            formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
+            formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
         });
+
     </script>
 
 </body>
