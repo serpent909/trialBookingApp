@@ -16,7 +16,6 @@ function readAvailabilityJson(resource) {
 }
 
 function generateScheduleEntries(availabilityJson, resourceId, resourceName, resourceType) {
-  console.log(resourceType)
 
   const availability = availabilityJson.availability;
   const scheduleEntries = [];

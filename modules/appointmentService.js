@@ -3,6 +3,7 @@ const moment = require('moment');
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
 async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time) {
+
   await db.run('BEGIN TRANSACTION');
 
   try {
@@ -42,6 +43,7 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
 
 function calculateTime(resource, appointmentType, originalStartTime) {
   // Implementation code for calculating start and end times
+
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
   let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DDTHH:mm');
@@ -51,6 +53,7 @@ function calculateTime(resource, appointmentType, originalStartTime) {
 }
 
 function adjustTimes(appointmentType, resourceId, originalStartTime) {
+
   // Implementation code for adjusting times
   let resource;
 
