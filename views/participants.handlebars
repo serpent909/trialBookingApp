@@ -1,0 +1,27 @@
+<h1>Participants</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Participant ID</th>
+      <th>Appointment 1</th>
+      <th>Appointment 2</th>
+      <th>Appointment 3</th>
+      <th>Appointment 4</th>
+      <th>Appointment 5</th>
+      <th>Appointment 6</th>
+      <th>Appointment 7</th>
+      <th>Appointment 8</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each arrangedData}}
+      <tr>
+        <td>{{participantId}}</td>
+        {{#each appointments}}
+        <td>{{#if this}}{{formatTime this}}{{/if}}</td>
+        {{/each}}
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
