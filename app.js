@@ -94,7 +94,7 @@ const roomIds = [
   { id: 4, name: "Room 2" },
 ]
 app.locals.room_ids = roomIds;
-app.locals.appointment_type_ids = [1,2,3];
+app.locals.appointment_numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 const participantIds = Array.from({ length: 40 }, (_, i) => i + 1);
 app.locals.participant_ids = participantIds;
 
@@ -190,7 +190,7 @@ app.post("/appointments", async (req, res) => {
       participant_id,
       psychologist_id,
       room_id,
-      appointment_type_id,
+      appointment_number,
       start_time,
       end_time
     } = req.body;
@@ -203,7 +203,7 @@ app.post("/appointments", async (req, res) => {
       nurse_id,
       parseInt(psychologist_id),
       parseInt(room_id),
-      parseInt(appointment_type_id),
+      parseInt(appointment_number),
       start_time,
       end_time
     );
@@ -217,8 +217,44 @@ app.post("/appointments", async (req, res) => {
 
 
 app.get("/book-appointment", (req, res) => {
-  
-  res.render("bookAppointment",  { title: "Book Appointment" });
+
+  res.render("bookAppointment", { title: "Book Appointment" });
+});
+
+
+app.get("/participants", async (req, res) => {
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const participantBookings = await db.all("SELECT * FROM appointments");
+
+    let arrangedData = Array(40).fill().map((_, i) => ({
+      participantId: i + 1,
+      appointments: Array(8).fill(null)
+    }));
+    
+    participantBookings.forEach((booking) => {
+      let participantIndex = arrangedData.findIndex(participant => participant.participantId === booking.participant_id);
+      let appointmentIndex = booking.appointment_number - 1;
+    
+      if (participantIndex > -1) {
+        arrangedData[participantIndex].appointments[appointmentIndex] = booking.start_time;
+      } else {
+        console.log(`Invalid participant id: ${booking.participant_id}`);
+      }
+    });
+
+    res.render("participants", { title: "Participants", participantBookings, arrangedData });
+
+
+  } catch (err) {
+    console.error('Failed to retrieve participants:', err);
+    res.status(500).render("error", { title: "Error", message: "Failed to retrieve participants" });
+  }
+
 });
 
 

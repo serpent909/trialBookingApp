@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS
     appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         participant_id INTEGER NOT NULL,
-        appointment_type_id INTEGER NOT NULL,
+        appointment_number INTEGER NOT NULL,
         start_time TEXT NOT NULL,
         end_time TEXT NOT NULL
     );

@@ -2,15 +2,35 @@ const fs = require("fs");
 const moment = require('moment');
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
-async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_type_id, start_time, end_time) {
+async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_number, start_time, end_time) {
+
+  let appointment_type_id;
+
+  if(appointment_number === 1) {
+    appointment_type_id = 1;
+  } else if(appointment_number === 2) {
+    appointment_type_id = 2;
+  } else if(appointment_number === 3) {
+    appointment_type_id = 3;
+  } else if(appointment_number === 4) {
+    appointment_type_id = 3;
+  } else if(appointment_number === 5) {
+    appointment_type_id = 3;
+  } else if(appointment_number === 6) {
+    appointment_type_id = 3;
+  } else if(appointment_number === 7) {
+    appointment_type_id = 3;
+  } else if(appointment_number === 8) {
+    appointment_type_id = 3;
+  }
 
   await db.run('BEGIN TRANSACTION');
 
   try {
     // First, insert into the appointments table
     let result = await db.run(
-      "INSERT INTO appointments (participant_id, appointment_type_id, start_time, end_time) VALUES (?, ?, ?, ?)",
-      [participant_id, appointment_type_id, start_time, end_time]
+      "INSERT INTO appointments (participant_id, appointment_number, start_time, end_time) VALUES (?, ?, ?, ?)",
+      [participant_id, appointment_number, start_time, end_time]
     );
 
     // Get the id of the appointment just inserted
