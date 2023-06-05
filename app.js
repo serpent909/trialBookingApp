@@ -36,7 +36,8 @@ app.engine(
     helpers: {
       formatTime: function (dateTime) {
 
-        const [datePart, timePart] = dateTime.split('T');
+        const separator = dateTime.includes('T') ? 'T' : ' ';
+        const [datePart, timePart] = dateTime.split(separator);
         const [year, month, day] = datePart.split('-');
         const [hour, minute] = timePart.split(':');
 
@@ -56,6 +57,9 @@ app.engine(
       },
       add: function (value1, value2) {
         return value1 + value2;
+      },
+      indexPlusOne: function (index) {
+        return index + 1;
       }
     }
   })
@@ -78,23 +82,32 @@ require("./modules/database.js");
 
 //Global variables
 app.locals.siteName = "Booking App";
+
 const psychologistIds = [
-  { id: 5, name: "Psychologist 1" },
-  { id: 6, name: "Psychologist 2" },
-  { id: 7, name: "Psychologist 3" },
-  { id: 8, name: "Psychologist 4" },
-  { id: 9, name: "Psychologist 5" },
-  { id: 10, name: "Psychologist 6" },
-  { id: 11, name: "Psychologist 7" },
-  { id: 12, name: "Psychologist 8" },
+  { id: 7, name: "Psychologist 1" },
+  { id: 8, name: "Psychologist 2" },
+  { id: 9, name: "Psychologist 3" },
+  { id: 10, name: "Psychologist 4" },
+  { id: 11, name: "Psychologist 5" },
+  { id: 12, name: "Psychologist 6" },
+  { id: 13, name: "Psychologist 7" },
 ];
-app.locals.psychologist_ids = psychologistIds;
+
 const roomIds = [
-  { id: 3, name: "Room 1" },
-  { id: 4, name: "Room 2" },
+  { id: 4, name: "Room 1" },
+  { id: 5, name: "Room 2" },
+  { id: 6, name: "Room 3" },
 ]
+const researcherIds = [
+  { id: 1, name: "Researcher 1" },
+  { id: 2, name: "Researcher 2" },
+];
+
+app.locals.researcher_ids = researcherIds;
+app.locals.psychologist_ids = psychologistIds;
 app.locals.room_ids = roomIds;
 app.locals.appointment_numbers = [1, 2, 3, 4, 5, 6, 7, 8];
+
 const participantIds = Array.from({ length: 40 }, (_, i) => i + 1);
 app.locals.participant_ids = participantIds;
 
@@ -142,14 +155,18 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
 
     // Get the query parameters
-    const { startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
+    const { startDate, endDate, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
+    console.log(req.query)
 
     //populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
       roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
       psychologistNames: rows.filter(row => row.type === 'Psychologist').map(row => row.name),
+      researcherNames: rows.filter(row => row.type === 'Researcher').map(row => row.name)
     }
+
+
 
     // Fetch the base availability information from the schedules table
     const baseAvailabilitySchedules = await db.all(
@@ -157,7 +174,7 @@ app.get("/appointmentAvailability", async (req, res) => {
     );
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
-    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
+    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -183,10 +200,11 @@ app.post("/appointments", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    const researcher_id = 1;
-    const nurse_id = 2;
+
+    const nurse_id = 3;
 
     let {
+      researcher_id,
       participant_id,
       psychologist_id,
       room_id,
@@ -195,11 +213,14 @@ app.post("/appointments", async (req, res) => {
       end_time
     } = req.body;
 
+    console.log(appointment_number)
+
+
     //TODO: Tidy up parseInt
     await appointmentService.createAppointment(
       db,
       parseInt(participant_id),
-      researcher_id,
+      parseInt(researcher_id),
       nurse_id,
       parseInt(psychologist_id),
       parseInt(room_id),
@@ -235,11 +256,11 @@ app.get("/participants", async (req, res) => {
       participantId: i + 1,
       appointments: Array(8).fill(null)
     }));
-    
+
     participantBookings.forEach((booking) => {
       let participantIndex = arrangedData.findIndex(participant => participant.participantId === booking.participant_id);
       let appointmentIndex = booking.appointment_number - 1;
-    
+
       if (participantIndex > -1) {
         arrangedData[participantIndex].appointments[appointmentIndex] = booking.start_time;
       } else {

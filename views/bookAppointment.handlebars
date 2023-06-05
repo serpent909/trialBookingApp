@@ -14,6 +14,14 @@
     <h1>Book Appointment</h1>
 
     <form action="/appointments" method="POST" id="appointmentForm">
+
+        <label for="researcher_id">Researcher ID:</label>
+        <select id="researcher_id" name="researcher_id" required>
+            <option value="">Select Researcher</option>
+            {{#each researcher_ids}}
+            <option value="{{id}}">{{name}}</option>
+            {{/each}}
+        </select>
         <label for="participant_id">Participant ID:</label>
         <select id="participant_id" name="participant_id" required>
             <option value="">Select Participant</option>
@@ -77,8 +85,8 @@
 
         form.addEventListener('submit', function (event) {
             // Format the start and end times for the hidden inputs
-            formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
-            formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
+            formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm');
+            formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm');
         });
 
     </script>

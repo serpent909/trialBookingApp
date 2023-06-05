@@ -4,6 +4,9 @@ const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.
 
 async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_number, start_time, end_time) {
 
+
+
+
   let appointment_type_id;
 
   if(appointment_number === 1) {
@@ -23,6 +26,7 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
   } else if(appointment_number === 8) {
     appointment_type_id = 3;
   }
+
 
   await db.run('BEGIN TRANSACTION');
 
@@ -66,8 +70,8 @@ function calculateTime(resource, appointmentType, originalStartTime) {
 
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
-  let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DDTHH:mm');
-  let calculatedEndTime = moment(calculatedStartTime).add(duration, 'minutes').format('YYYY-MM-DDTHH:mm');
+  let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DD HH:mm');
+  let calculatedEndTime = moment(calculatedStartTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm');
 
   return { calculatedStartTime, calculatedEndTime };
 }
@@ -78,13 +82,13 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   let resource;
 
   // Determine the resource based on the resourceId
-  if (resourceId === 1) {
+  if (resourceId === 1 || resourceId === 2) {
     resource = 'researcher';
-  } else if (resourceId === 2) {
+  } else if (resourceId === 3) {
     resource = 'nurse';
-  } else if ([5, 6, 7, 8, 9, 10, 11, 12].includes(resourceId)) {
+  } else if ([7, 8, 9, 10, 11, 12, 13].includes(resourceId)) {
     resource = 'psychologist';
-  } else if (resourceId === 3 || resourceId === 4) {
+  } else if (resourceId === 4 || resourceId === 5 || resourceId === 6) {
     resource = 'room';
   }
 

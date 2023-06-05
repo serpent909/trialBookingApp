@@ -1,27 +1,173 @@
-<h1>Participants</h1>
+<head>
+  <meta charset="utf-8">
+  <title>Participants</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+  <link rel="stylesheet" href="/css/form.css">
+  <link rel="stylesheet" href="/css/flatpickr.css">
+  <script src="/javascript/flatpickr.js"></script>
+  <style>
+    td {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
 
-<table>
-  <thead>
-    <tr>
-      <th>Participant ID</th>
-      <th>Appointment 1</th>
-      <th>Appointment 2</th>
-      <th>Appointment 3</th>
-      <th>Appointment 4</th>
-      <th>Appointment 5</th>
-      <th>Appointment 6</th>
-      <th>Appointment 7</th>
-      <th>Appointment 8</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each arrangedData}}
+    td:hover {
+      background-color: #4287F5;
+
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Participants</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Participant ID</th>
+        <th>Appointment 1</th>
+        <th>Appointment 2</th>
+        <th>Appointment 3</th>
+        <th>Appointment 4</th>
+        <th>Appointment 5</th>
+        <th>Appointment 6</th>
+        <th>Appointment 7</th>
+        <th>Appointment 8</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each arrangedData}}
       <tr>
         <td>{{participantId}}</td>
         {{#each appointments}}
-        <td>{{#if this}}{{formatTime this}}{{/if}}</td>
+        <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}">{{#if
+          this}}{{formatTime this}}{{/if}}</td>
         {{/each}}
       </tr>
-    {{/each}}
-  </tbody>
-</table>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <!-- The booking form, hidden inside a modal -->
+  <div id="booking-modal" style="display: none;">
+    <!-- Booking form -->
+    <form action="/appointments" method="POST" id="appointmentForm">
+      <label for="participant_id">Participant ID:</label>
+      <select id="participant_id" name="participant_id" required>
+        <option value="">Select Participant</option>
+        {{#each participant_ids}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+
+      <label for="psychologist_id">Psychologist ID:</label>
+      <select id="psychologist_id" name="psychologist_id">
+        <option value="">Select Psychologist</option>
+        {{#each psychologist_ids}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+      </select>
+
+      <label for="room_id">Room ID:</label>
+      <select id="room_id" name="room_id" required>
+        <option value="">Select Room</option>
+        {{#each room_ids}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+      </select>
+
+      <label for="appointment_number">Appointment Number:</label>
+      <select id="appointment_number" name="appointment_number" required>
+        <option value="">Select Appointment Number</option>
+        {{#each appointment_numbers}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+
+      <label for="unformatted_start_time">Start Time:</label>
+      <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required step="900">
+
+      <label for="unformatted_end_time">End Time:</label>
+      <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required step="900">
+
+      <!-- Hidden fields for the server -->
+      <input type="hidden" id="start_time" name="start_time">
+      <input type="hidden" id="end_time" name="end_time">
+
+      <button type="submit">Book Appointment</button>
+    </form>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <script>
+    $(function () {
+      $("#booking-modal").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 500
+      });
+    });
+
+    document.querySelectorAll('td').forEach((td) => {
+      td.addEventListener('click', function () {
+        const participantId = this.dataset.participantId;
+        const appointmentNumber = this.dataset.appointmentNumber;
+        const startTime = this.textContent;
+
+        // Populate the booking form with the cell's data
+        document.getElementById('participant_id').value = participantId;
+        document.getElementById('appointment_number').value = appointmentNumber;
+        document.getElementById('unformatted_start_time').value = startTime;
+
+        // Open the booking modal
+        $("#booking-modal").dialog("open");
+      });
+    });
+
+    const form = document.getElementById('appointmentForm');
+    const startInput = document.getElementById('unformatted_start_time');
+    const endInput = document.getElementById('unformatted_end_time');
+    const formattedStartInput = document.getElementById('start_time');
+    const formattedEndInput = document.getElementById('end_time');
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      // Format the start and end times for the hidden inputs
+      formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
+      formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
+
+      const formData = new FormData(this);
+      fetch('/appointments', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          // Skip parsing the response as JSON if not needed.
+          return response.statusText;
+        })
+        .then(data => {
+          console.log(data);  // You will see 'Appointment created successfully' here.
+
+          // Close the booking modal
+          $("#booking-modal").dialog("close");
+
+          // Redirect to a success page, or show a success message
+          window.location.href = "/participants"; // change this to where you want to redirect
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          // Show error message to user, for instance using an alert box
+          alert('There was an error. Please try again.');
+        });
+    });
+  </script>
