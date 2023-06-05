@@ -21,23 +21,19 @@
         // Retrieve the form field values
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
-        const researcherTime = document.getElementById('researcherTime').value;
-        const nurseTime = document.getElementById('nurseTime').value;
-        const psychologistTime = document.getElementById('psychologistTime').value;
-        const roomTime = document.getElementById('roomTime').value;
+        const researcherName = document.getElementById('researcherName').value;
         const psychologistName = document.getElementById('psychologistName').value;
         const roomName = document.getElementById('roomName').value;
+        const appointmentNumber = document.getElementById('appointmentNumber').value;
 
         // Store the form values in localStorage
         const formValues = {
           startDate: startDate,
           endDate: endDate,
-          researcherTime: researcherTime,
-          nurseTime: nurseTime,
-          psychologistTime: psychologistTime,
-          roomTime: roomTime,
+          appointmentNumber: appointmentNumber,
           psychologistName: psychologistName,
-          roomName: roomName
+          roomName: roomName,
+          researcherName: researcherName
         };
         localStorage.setItem('formValues', JSON.stringify(formValues));
 
@@ -50,12 +46,10 @@
 
       function populateForm(values) {
         document.getElementById('startDate').value = values.startDate || '';
-        document.getElementById('endDate').value = values.endDate || '';
-        document.getElementById('researcherTime').value = values.researcherTime || '';
-        document.getElementById('nurseTime').value = values.nurseTime || '';
-        document.getElementById('psychologistTime').value = values.psychologistTime || '';
-        document.getElementById('roomTime').value = values.roomTime || '';
+           document.getElementById('endDate').value = values.endDate || '';
+        document.getElementById('appointmentNumber').value = values.appointmentNumber || '';
         document.getElementById('psychologistName').value = values.psychologistName || '';
+        document.getElementById('researcherName').value = values.researcherName || '';
         document.getElementById('roomName').value = values.roomName || '';
       }
     });
@@ -72,14 +66,10 @@
     <input type="date" id="startDate" name="startDate">
     <label for="endDate">End Date:</label>
     <input type="date" id="endDate" name="endDate">
-    <label for="researcherTime">Researcher Time (hours):</label>
-    <input type="number" id="researcherTime" name="researcherTime">
-    <label for="nurseTime">Nurse Time (hours):</label>
-    <input type="number" id="nurseTime" name="nurseTime">
-    <label for="psychologistTime">Psychologist Time (hours):</label>
-    <input type="number" id="psychologistTime" name="psychologistTime">
-    <label for="roomTime">Room Time (hours):</label>
-    <input type="number" id="roomTime" name="roomTime">
+
+    <label for="appointmentNumber">Appointment Number:</label>
+    <input type="number" id="appointmentNumber" name="appointmentNumber">
+
 
     <label for="psychologistName">Psychologist Name:</label>
     <select id="psychologistName" name="psychologistName">
