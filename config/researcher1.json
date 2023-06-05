@@ -30,6 +30,11 @@
           "endTime": "18:00"
         },
         {
+          "dayOfWeek": "Friday",
+          "startTime": "08:00",
+          "endTime": "18:00"
+        },
+        {
           "dayOfWeek": "Saturday",
           "startTime": "08:00",
           "endTime": "18:00"

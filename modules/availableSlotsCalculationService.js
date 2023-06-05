@@ -1,10 +1,10 @@
 const moment = require('moment');
 
-function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
+function filterSlots(startDate, endDate, availableDaySlots, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
 
     if (startDate && endDate) {
       availableDaySlots = availableDaySlots.filter((slot) => {
-        const slotDate = slot.start.split("T")[0];
+        const slotDate = slot.start.split(" ")[0];
         return slotDate >= startDate && slotDate <= endDate;
       });
     }
@@ -93,21 +93,33 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
         }
       });
     }
+
+    if (researcherName) {
+      availableDaySlots = availableDaySlots.filter((slot) => {
+        const slotName = slot.name;
+        const slotType = slot.type;
+        if (slotType === "Researcher") {
+          return slotName === researcherName;
+        } else {
+          return true;
+        }
+      });
+    }
     return availableDaySlots;
   }
   
   
   function calculateAvailableSlots(availabilityType, availabilityName, availabilityStart, availabilityEnd, resourceDayAppointmentArray) {
   
-    const start = moment(availabilityStart).format('YYYY-MM-DDTHH:mm');
-    const end = moment(availabilityEnd).format('YYYY-MM-DDTHH:mm');
+    const start = moment(availabilityStart).format('YYYY-MM-DD HH:mm');
+    const end = moment(availabilityEnd).format('YYYY-MM-DD HH:mm');
     const availableSlots = [];
   
     let currentSlotStart = start;
   
     resourceDayAppointmentArray.forEach((appointment) => {
-      const appointmentStart = moment(appointment.start).format('YYYY-MM-DDTHH:mm');
-      const appointmentEnd = moment(appointment.end).format('YYYY-MM-DDTHH:mm');
+      const appointmentStart = moment(appointment.start).format('YYYY-MM-DD HH:mm');
+      const appointmentEnd = moment(appointment.end).format('YYYY-MM-DD HH:mm');
   
       if (currentSlotStart < appointmentStart) {
         const availableSlot = {
@@ -138,13 +150,13 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
   }
   
   
-  function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
+  function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName) {
   
     const availableSlots = [];
   
     const filteredBookedTimes = bookedTimes.map(appointment => ({
       ...appointment,
-      appointmentDate: appointment.start_time.split("T")[0],
+      appointmentDate: appointment.start_time.split(" ")[0],
     }));
   
   
@@ -152,7 +164,7 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
     baseAvailabilitySchedules.forEach((baseSchedule) => {
       const resourceDayAppointmentArray = filteredBookedTimes
         .filter(appointment =>
-          appointment.appointmentDate === baseSchedule.start_time.split("T")[0] && appointment.bookable_thing_id === baseSchedule.bookable_thing_id
+          appointment.appointmentDate === baseSchedule.start_time.split(" ")[0] && appointment.bookable_thing_id === baseSchedule.bookable_thing_id
         ).map(({ start_time, end_time }) => ({ start: start_time, end: end_time }));
   
   
@@ -172,6 +184,7 @@ function filterSlots(startDate, endDate, availableDaySlots, researcherTime, nurs
         endDate,
         availableDaySlots,
         researcherTime,
+        researcherName,
         nurseTime,
         psychologistTime,
         roomTime,

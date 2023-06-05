@@ -1,42 +1,42 @@
 {
     "type1": {
-        "researcherOffset": 15,
-        "researcherDuration": 30,
+        "researcherOffset": 0,
+        "researcherDuration": 180,
 
-        "nurseOffset": 15,
-        "nurseDuration": 30,
+        "nurseOffset": 30,
+        "nurseDuration": 90,
 
-        "psychologistOffset": 60,
-        "psychologistDuration": 60,
-
-        "roomOffset": 60,
-        "roomDuration": 60
-    },
-    "type2": {
-        "researcherOffset": 30,
-        "researcherDuration": 30,
-
-        "nurseOffset": 10,
-        "nurseDuration": 10,
-
-        "psychologistOffset": 20,
-        "psychologistDuration": 20,
+        "psychologistOffset": 0,
+        "psychologistDuration": 0,
 
         "roomOffset": 0,
         "roomDuration": 0
+    },
+    "type2": {
+        "researcherOffset": 0,
+        "researcherDuration": 390,
+
+        "nurseOffset": 30,
+        "nurseDuration": 240,
+
+        "psychologistOffset": 45,
+        "psychologistDuration": 90,
+
+        "roomOffset": 45,
+        "roomDuration": 90
 
     },
     "type3": {
-        "researcherOffset": 45,
-        "researcherDuration": 45,
+        "researcherOffset": 0,
+        "researcherDuration": 150,
 
-        "nurseOffset": 15,
-        "nurseDuration": 15,
+        "nurseOffset": 0,
+        "nurseDuration": 0,
 
-        "psychologistOffset": 30,
-        "psychologistDuration": 30,
+        "psychologistOffset": 45,
+        "psychologistDuration": 90,
 
-        "roomOffset": 15,
-        "roomDuration": 15
+        "roomOffset": 0,
+        "roomDuration": 150
     }
 }

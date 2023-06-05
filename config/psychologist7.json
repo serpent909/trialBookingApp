@@ -1,33 +1,15 @@
 {
   "availability": [
     {
-      "startDate": "2023-05-01",
-      "endDate": "2023-06-30",
+      "name": "Sonali",
+      "startDate": "2023-06-12",
+      "endDate": "2023-12-04",
       "availabilityByDay": [
+
         {
-          "dayOfWeek": "Monday",
-          "startTime": "08:00",
-          "endTime": "17:00"
-        },
-        {
-          "dayOfWeek": "Tuesday",
+          "dayOfWeek": "Saturday",
           "startTime": "09:00",
-          "endTime": "16:30"
-        },
-        {
-          "dayOfWeek": "Wednesday",
-          "startTime": "10:00",
-          "endTime": "18:00"
-        },
-        {
-          "dayOfWeek": "Thursday",
-          "startTime": "08:30",
-          "endTime": "16:00"
-        },
-        {
-          "dayOfWeek": "Friday",
-          "startTime": "09:30",
-          "endTime": "17:30"
+          "endTime": "13:00"
         }
       ]
     }

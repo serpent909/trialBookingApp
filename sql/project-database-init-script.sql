@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS
     appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        participant_id INTEGER NOT NULL,
+        participant_id INTEGER,
         appointment_number INTEGER NOT NULL,
         start_time TEXT NOT NULL,
         end_time TEXT NOT NULL
@@ -17,8 +17,12 @@ CREATE TABLE
 
 -- Populate 'bookable_things' with predefined types if they don't exist
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Researcher', 'researcher'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher');
+SELECT 'Researcher', 'researcher1'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'researcher1');
+
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Researcher', 'researcher2'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'researcher2');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
 SELECT 'Nurse', 'nurse'
@@ -31,6 +35,10 @@ WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = '
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Room', 'room2'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = 'room2');
+
+INSERT OR IGNORE INTO bookable_things (type, name)
+SELECT 'Room', 'room3'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = 'room3');
 
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Psychologist', 'psychologist1'
@@ -59,10 +67,6 @@ WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND 
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Psychologist', 'psychologist7'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'psychologist7');
-
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'psychologist8'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'psychologist8');
 
 
 -- Create the 'booked_times' table

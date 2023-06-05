@@ -1,33 +1,33 @@
 {
   "availability": [
     {
-      "startDate": "2023-05-01",
-      "endDate": "2023-06-30",
+      "startDate": "2023-06-12",
+      "endDate": "2023-12-04",
       "availabilityByDay": [
         {
           "dayOfWeek": "Monday",
-          "startTime": "08:00",
-          "endTime": "17:00"
+          "startTime": "09:00",
+          "endTime": "15:30"
         },
         {
           "dayOfWeek": "Tuesday",
           "startTime": "09:00",
-          "endTime": "16:30"
+          "endTime": "15:30"
         },
         {
           "dayOfWeek": "Wednesday",
-          "startTime": "10:00",
-          "endTime": "18:00"
+          "startTime": "09:00",
+          "endTime": "15:30"
         },
         {
           "dayOfWeek": "Thursday",
-          "startTime": "08:30",
-          "endTime": "16:00"
+          "startTime": "09:00",
+          "endTime": "15:30"
         },
         {
           "dayOfWeek": "Friday",
-          "startTime": "09:30",
-          "endTime": "17:30"
+          "startTime": "09:00",
+          "endTime": "15:30"
         }
       ]
     }

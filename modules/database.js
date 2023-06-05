@@ -53,7 +53,7 @@ function generateScheduleEntries(availabilityJson, resourceId, resourceName, res
 }
 
 function toLocalISOString(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
 async function getResourceId(db, resourceName) {
@@ -73,18 +73,19 @@ async function getResourcType(db, resourceType) {
 
 async function populateSchedules(db) {
   const resources = [
-    { name: 'researcher', type: 'Researcher' },
+    { name: 'researcher1', type: 'Researcher' },
+    { name: 'researcher2', type: 'Researcher' },
     { name: 'nurse', type: 'Nurse' },
     { name: 'room1', type: 'Room' },
     { name: 'room2', type: 'Room' },
+    { name: 'room3', type: 'Room' },
     { name: 'psychologist1', type: 'Psychologist' },
     { name: 'psychologist2', type: 'Psychologist' },
     { name: 'psychologist3', type: 'Psychologist' },
     { name: 'psychologist4', type: 'Psychologist' },
     { name: 'psychologist5', type: 'Psychologist' },
     { name: 'psychologist6', type: 'Psychologist' },
-    { name: 'psychologist7', type: 'Psychologist' },
-    { name: 'psychologist8', type: 'Psychologist' }
+    { name: 'psychologist7', type: 'Psychologist' }
   ];
 
   for (const resource of resources) {
