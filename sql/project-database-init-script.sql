@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS booked_times (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     appointment_id INTEGER,
     bookable_thing_id INTEGER,
+    booked_name TEXT,
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     FOREIGN KEY (appointment_id) REFERENCES appointments(id),

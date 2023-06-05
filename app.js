@@ -4,17 +4,19 @@
 //Time and date formatting
 //Add logic to store appointment times in the db for each resource based on the main appointment time and type
 //Refactor code with improved naming conventions and seperation of concerns
+//Add participant view to display their current boking information, make it obvious which appointment needs to be booked next
+//Potentially add a book time button from the participant view page to populate the booking form with the correct information
 
 
 //TODO: 
+//Improve available appointments view by incorporating appointment number logic
 //Add logic to prevent double booking of resources
-//Improve available appointments view by incorporating appointment type logic and participant id
 //Potentially generate available slots in 15-minute increments?
-//Add participant view to display their current boking information, make it obvious which appointment needs to be booked next
-//Potentially add a book time button from the participant vbiew page to populate the booking form with the correct information
 //Edit existing bookings
 //Edit base availability (add more or remove some)
 //Authentication?
+
+
 const express = require("express");
 const sqlite = require("sqlite");
 const sqlite3 = require("sqlite3");
@@ -155,9 +157,9 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
 
     // Get the query parameters
-    const { startDate, endDate, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName } = req.query;
-    console.log(req.query)
+    const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName } = req.query;
 
+   
     //populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
@@ -166,15 +168,13 @@ app.get("/appointmentAvailability", async (req, res) => {
       researcherNames: rows.filter(row => row.type === 'Researcher').map(row => row.name)
     }
 
-
-
     // Fetch the base availability information from the schedules table
     const baseAvailabilitySchedules = await db.all(
       "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
     );
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
-    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, researcherTime, researcherName, nurseTime, psychologistTime, roomTime, psychologistName, roomName);
+    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -213,7 +213,7 @@ app.post("/appointments", async (req, res) => {
       end_time
     } = req.body;
 
-    console.log(appointment_number)
+
 
 
     //TODO: Tidy up parseInt

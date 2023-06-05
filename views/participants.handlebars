@@ -3,8 +3,6 @@
   <title>Participants</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
   <link rel="stylesheet" href="/css/form.css">
-  <link rel="stylesheet" href="/css/flatpickr.css">
-  <script src="/javascript/flatpickr.js"></script>
   <style>
     td {
       cursor: pointer;
@@ -52,11 +50,20 @@
   <div id="booking-modal" style="display: none;">
     <!-- Booking form -->
     <form action="/appointments" method="POST" id="appointmentForm">
+
       <label for="participant_id">Participant ID:</label>
       <select id="participant_id" name="participant_id" required>
         <option value="">Select Participant</option>
         {{#each participant_ids}}
         <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+
+      <label for="researcher_id">Researcher ID:</label>
+      <select id="researcher_id" name="researcher_id" required>
+        <option value="">Select Researcher</option>
+        {{#each researcher_ids}}
+        <option value="{{id}}">{{name}}</option>
         {{/each}}
       </select>
 

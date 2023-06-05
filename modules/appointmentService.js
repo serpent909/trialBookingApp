@@ -6,7 +6,6 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
 
 
 
-
   let appointment_type_id;
 
   if(appointment_number === 1) {
@@ -49,11 +48,14 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
         continue;
       }
 
+      let bookableThingRow = await db.get('SELECT name FROM bookable_things WHERE id = ?', [bookable_things[i]]);
+      console.log(bookableThingRow.name)
+
       let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], start_time, end_time);
 
       await db.run(
-        "INSERT INTO booked_times (appointment_id, bookable_thing_id, start_time, end_time) VALUES (?, ?, ?, ?)",
-        [appointment_id, bookable_things[i], newStartTime, newEndTime]
+        "INSERT INTO booked_times (appointment_id, bookable_thing_id, booked_name, start_time, end_time) VALUES (?, ?, ?, ?, ?)",
+        [appointment_id, bookable_things[i], bookableThingRow.name, newStartTime, newEndTime]
       );
     }
 
@@ -65,8 +67,8 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
   }
 }
 
+// Implementation code for calculating start and end times
 function calculateTime(resource, appointmentType, originalStartTime) {
-  // Implementation code for calculating start and end times
 
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
@@ -100,5 +102,6 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
 }
 
 module.exports = {
-  createAppointment
+  createAppointment,
+  calculateTime
 };
