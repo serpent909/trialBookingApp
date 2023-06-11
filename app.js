@@ -156,6 +156,8 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+    console.log(req.query);
+
     // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName } = req.query;
 
@@ -175,11 +177,25 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
+  
+   
+
+    const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber);
+    console.log(formattedTimeSlotsWithAppointmentNumberLogic);
+    
+
+
+
+   
+    
+
+    
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
       availableSlots,
       dropDownOptions,
+      formattedTimeSlotsWithAppointmentNumberLogic
 
     });
   } catch (err) {
