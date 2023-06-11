@@ -22,8 +22,8 @@
         "psychologistOffset": 45,
         "psychologistDuration": 90,
 
-        "roomOffset": 45,
-        "roomDuration": 90
+        "roomOffset": 0,
+        "roomDuration": 390
 
     },
     "type3": {

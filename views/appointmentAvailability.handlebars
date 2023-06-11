@@ -3,8 +3,9 @@
 
 <head>
   <title>{{ title }}</title>
-  <script src="/javascript/availableSlotFiltering.js"></script>
   <link rel="stylesheet" href="/css/table.css">
+  <link rel="stylesheet" href="/css/modal.css">
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('appointmentTypeForm');
@@ -46,7 +47,7 @@
 
       function populateForm(values) {
         document.getElementById('startDate').value = values.startDate || '';
-           document.getElementById('endDate').value = values.endDate || '';
+        document.getElementById('endDate').value = values.endDate || '';
         document.getElementById('appointmentNumber').value = values.appointmentNumber || '';
         document.getElementById('psychologistName').value = values.psychologistName || '';
         document.getElementById('researcherName').value = values.researcherName || '';
@@ -60,7 +61,7 @@
   <h1>Appointment Availability</h1>
 
   <h2>Choose Appointment Details</h2>
-  
+
   <form id="appointmentTypeForm">
     <label for="startDate">Start Date:</label>
     <input type="date" id="startDate" name="startDate">
@@ -94,35 +95,65 @@
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
-    
 
-    <button type="submit">Update Slots</button>
+
+    <button type="submit">Find Slots</button>
   </form>
 
   <h2>Available Slots</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Bookable Thing ID</th>
-        <th>Name</th>
-        <th>Resource Type</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each availableSlots}}
-      <tr>
-        <td>{{id}}</td>
-        <td>{{name}}</td>
-        <td>{{type}}</td>
-        <td>{{formatTime start_time}}</td>
-        <td>{{formatTime end_time}}</td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+
+  <div class="card-container">
+    {{#each formattedTimeSlotsWithAppointmentNumberLogic}}
+    <div class="card">
+      <div class="card-header">
+        <h3>Appointment Details</h3>
+      </div>
+      <div class="card-body">
+        <p><strong>Appointment Number:</strong> <span>{{appointmentNumber}}</span></p>
+        <p><strong>Start Time:</strong> <span id="start-time">{{formatTime startTime}}</span></p>
+        <p><strong>End Time:</strong> <span id="end-time">{{formatTime endTime}}</span></p>
+        <p><strong>Researcher:</strong> <span id="researcher-name">{{researcherName}}</span></p>
+        <p><strong>Psychologist:</strong> <span id="psychologist-name">{{psychologistName}}</span></p>
+        <p><strong>Room:</strong> <span id="room-name">{{roomName}}</span></p>
+        <p><strong>Nurse:</strong> <span id="nurse-name">{{nurseName}}</span></p>
+
+        <button class="book-button" data-start-time="{{startTime}}" data-end-time="{{endTime}}"
+          data-researcher-name="{{researcherName}}" data-psychologist-name="{{psychologistName}}"
+          data-room-name="{{roomName}}" data-nurse-name="{{nurseName}}">Book</button>
+      </div>
+
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
+    hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookingModalLabel">Booking Summary</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Start Time:</strong> <span id="startTimeModal"></span></p>
+          <p><strong>End Time:</strong> <span id="endTimeModal"></span></p>
+          <p><strong>Researcher:</strong> <span id="researcherNameModal"></span></p>
+          <p><strong>Psychologist:</strong> <span id="psychologistNameModal"></span></p>
+          <p><strong>Room:</strong> <span id="roomNameModal"></span></p>
+          <p><strong>Nurse:</strong> <span id="nurseNameModal"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
+          <button type="button" class="btn btn-secondary" id="closeButton" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/javascript/modal.js"></script>
 
 </body>
 
