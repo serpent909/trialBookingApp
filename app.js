@@ -6,12 +6,12 @@
 //Refactor code with improved naming conventions and seperation of concerns
 //Add participant view to display their current boking information, make it obvious which appointment needs to be booked next
 //Potentially add a book time button from the participant view page to populate the booking form with the correct information
+//Improve available appointments view by incorporating appointment number logic
+//Potentially generate available slots in 15-minute increments?
 
 
 //TODO: 
-//Improve available appointments view by incorporating appointment number logic
 //Add logic to prevent double booking of resources
-//Potentially generate available slots in 15-minute increments?
 //Edit existing bookings
 //Edit base availability (add more or remove some)
 //Authentication?
@@ -44,9 +44,26 @@ app.engine(
         const [hour, minute] = timePart.split(':');
 
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const formattedDate = `${months[parseInt(month, 10) - 1]} ${day}, ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        const formattedDate = `${year} ${months[parseInt(month, 10) - 1]} ${day}, ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
 
         return formattedDate;
+      },
+      getDate: function (dateTime) {
+        const separator = dateTime.includes('T') ? 'T' : ' ';
+        const [datePart, timePart] = dateTime.split(separator);
+        const [year, month, day] = datePart.split('-');
+        const [hour, minute] = timePart.split(':');
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const formattedDate = `${day}  ${months[parseInt(month, 10) - 1]} ${year}`;
+        return formattedDate;
+      },
+      getTime: function (dateTime) {
+        const separator = dateTime.includes('T') ? 'T' : ' ';
+        const [datePart, timePart] = dateTime.split(separator);
+        const [year, month, day] = datePart.split('-');
+        const [hour, minute] = timePart.split(':');
+        const formattedTime = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        return formattedTime;
       },
       gt: function (value1, value2) {
         return value1 > value2;
@@ -156,7 +173,7 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    console.log(req.query);
+
 
     // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName } = req.query;
@@ -181,16 +198,8 @@ app.get("/appointmentAvailability", async (req, res) => {
    
 
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber);
-    console.log(formattedTimeSlotsWithAppointmentNumberLogic);
-    
-
-
-
-   
-    
 
     
-
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
       availableSlots,
@@ -215,6 +224,55 @@ app.post("/appointments", async (req, res) => {
       filename: DB_PATH,
       driver: sqlite3.Database,
     });
+
+      console.log(req.body)
+ 
+
+
+    const nurse_id = 3;
+
+    let {
+      researcher_id,
+      participant_id,
+      psychologist_id,
+      room_id,
+      appointment_number,
+      start_time,
+      end_time
+    } = req.body;
+
+
+
+
+    //TODO: Tidy up parseInt
+    await appointmentService.createAppointment(
+      db,
+      parseInt(participant_id),
+      parseInt(researcher_id),
+      nurse_id,
+      parseInt(psychologist_id),
+      parseInt(room_id),
+      parseInt(appointment_number),
+      start_time,
+      end_time
+    );
+
+    res.status(200).send("Appointment created successfully");
+  } catch (err) {
+    console.error('Failed to create appointment:', err);
+    res.status(500).send("Failed to create appointment");
+  }
+});
+
+app.post("/appointments2", async (req, res) => {
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+      console.log(req.body)
+ 
 
 
     const nurse_id = 3;

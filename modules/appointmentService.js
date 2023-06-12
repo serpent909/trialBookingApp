@@ -49,7 +49,7 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
       }
 
       let bookableThingRow = await db.get('SELECT name FROM bookable_things WHERE id = ?', [bookable_things[i]]);
-      console.log(bookableThingRow.name)
+
 
       let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], start_time, end_time);
 

@@ -61,9 +61,26 @@ document.addEventListener('DOMContentLoaded', function () {
   // Confirm booking button click event
   confirmBookingBtn.addEventListener('click', function () {
     // Add your logic here to handle the confirmed booking
-    console.log('Booking confirmed:', selectedAppointment);
     // Close the modal
     closeBookingModal();
+    
+
+    const url = '/appointments2'; // replace with your endpoint url
+
+    fetch(url, {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(selectedAppointment), 
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
   });
 
   // Close button click event

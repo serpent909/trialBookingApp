@@ -1,22 +1,35 @@
 /* CSS styles for main.handlebars */
 
-body{
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    margin-bottom: 100px;
-  }
-  
-/* Navigation Bar Styling */
-nav {
-  background-color: #4287f5;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 100px;
 }
 
-h1, h2 {
+.main-container {
+  min-width: 1000px;
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+h1,
+h2 {
   margin: 0;
   padding: 0;
   font-weight: bold;
-  padding: 15px;
+  padding-top: 30px;
+  padding-bottom: 15px;
+}
+
+/* Navigation Bar Styling */
+.nav-bar {
+  background-color: #4287f5;
+}
+
+.nav-content {
+  max-width: 70%;
+  margin: 0 auto;
 }
 
 nav ul {
@@ -41,4 +54,3 @@ nav a {
 nav a:hover {
   background-color: #0d5ab6;
 }
-  

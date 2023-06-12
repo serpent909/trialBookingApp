@@ -3,15 +3,9 @@
     font-family: Arial, sans-serif;
 }
 
-h1, h2 {
-    margin: 0 auto;
-    width: 70%;
-
-}
 
 table {
     margin: 0 auto;
-    width: 70%;
     border-collapse: collapse;
     font-family: Arial, sans-serif;
     margin-bottom: 20px;

@@ -1,6 +1,5 @@
 .card-container {
     margin: 0 auto;
-    width: 70%;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;

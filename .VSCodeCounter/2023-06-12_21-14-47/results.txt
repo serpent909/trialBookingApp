@@ -1,0 +1,71 @@
+Date : 2023-06-12 21:14:47
+Directory : c:\Users\mscon\Desktop\trialBookingApp
+Total : 33 files,  7126 codes, 63 comments, 409 blanks, all 7598 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |         16 |      5,492 |          0 |         14 |      5,506 |
+| JavaScript |          5 |        824 |         56 |        237 |      1,117 |
+| Handlebars |          6 |        430 |          0 |         83 |        513 |
+| CSS        |          5 |        310 |          3 |         58 |        371 |
+| SQL        |          1 |         70 |          4 |         17 |         91 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         33 |      7,126 |         63 |        409 |      7,598 |
+| . (Files)                                                                          |          3 |      5,298 |         33 |         75 |      5,406 |
+| config                                                                             |         14 |        389 |          0 |         12 |        401 |
+| modules                                                                            |          3 |        565 |         14 |        152 |        731 |
+| public                                                                             |          6 |        374 |         12 |         70 |        456 |
+| public\css                                                                         |          5 |        310 |          3 |         58 |        371 |
+| public\javascript                                                                  |          1 |         64 |          9 |         12 |         85 |
+| sql                                                                                |          1 |         70 |          4 |         17 |         91 |
+| views                                                                              |          6 |        430 |          0 |         83 |        513 |
+| views (Files)                                                                      |          5 |        407 |          0 |         79 |        486 |
+| views\layouts                                                                      |          1 |         23 |          0 |          4 |         27 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                           | language   | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\mscon\Desktop\trialBookingApp\app.js                                      | JavaScript |        195 |         33 |         73 |        301 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\appointmentRules.json                | JSON       |         32 |          0 |         10 |         42 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\nurse.json                           | JSON       |         35 |          0 |          0 |         35 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist1.json                   | JSON       |         16 |          0 |          0 |         16 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist2.json                   | JSON       |         16 |          0 |          0 |         16 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist3.json                   | JSON       |         16 |          0 |          0 |         16 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist4.json                   | JSON       |         16 |          0 |          0 |         16 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist5.json                   | JSON       |         16 |          0 |          0 |         16 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist6.json                   | JSON       |         16 |          0 |          1 |         17 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\psychologist7.json                   | JSON       |         16 |          0 |          1 |         17 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\researcher1.json                     | JSON       |         45 |          0 |          0 |         45 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\researcher2.json                     | JSON       |         45 |          0 |          0 |         45 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\room1.json                           | JSON       |         40 |          0 |          0 |         40 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\room2.json                           | JSON       |         40 |          0 |          0 |         40 |
+| c:\Users\mscon\Desktop\trialBookingApp\config\room3.json                           | JSON       |         40 |          0 |          0 |         40 |
+| c:\Users\mscon\Desktop\trialBookingApp\modules\appointmentService.js               | JavaScript |         73 |         10 |         24 |        107 |
+| c:\Users\mscon\Desktop\trialBookingApp\modules\availableSlotsCalculationService.js | JavaScript |        388 |          3 |         99 |        490 |
+| c:\Users\mscon\Desktop\trialBookingApp\modules\database.js                         | JavaScript |        104 |          1 |         29 |        134 |
+| c:\Users\mscon\Desktop\trialBookingApp\package-lock.json                           | JSON       |      5,082 |          0 |          1 |      5,083 |
+| c:\Users\mscon\Desktop\trialBookingApp\package.json                                | JSON       |         21 |          0 |          1 |         22 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\css\card.css                         | CSS        |         53 |          0 |         10 |         63 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\css\form.css                         | CSS        |         43 |          0 |          6 |         49 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\css\main.css                         | CSS        |         34 |          2 |          8 |         44 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\css\modal.css                        | CSS        |         92 |          0 |         17 |        109 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\css\table.css                        | CSS        |         88 |          1 |         17 |        106 |
+| c:\Users\mscon\Desktop\trialBookingApp\public\javascript\modal.js                  | JavaScript |         64 |          9 |         12 |         85 |
+| c:\Users\mscon\Desktop\trialBookingApp\sql\project-database-init-script.sql        | SQL        |         70 |          4 |         17 |         91 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\appointmentAvailability.handlebars    | Handlebars |        131 |          0 |         29 |        160 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\bookAppointment.handlebars            | Handlebars |         77 |          0 |         19 |         96 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\home.handlebars                       | Handlebars |          1 |          0 |          0 |          1 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\layouts\main.handlebars               | Handlebars |         23 |          0 |          4 |         27 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\participants.handlebars               | Handlebars |        155 |          0 |         25 |        180 |
+| c:\Users\mscon\Desktop\trialBookingApp\views\schedules.handlebars                  | Handlebars |         43 |          0 |          6 |         49 |
+| Total                                                                              |            |      7,126 |         63 |        409 |      7,598 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
