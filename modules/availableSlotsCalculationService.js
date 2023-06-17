@@ -376,7 +376,7 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
             roomName: combinedSlotsWithMinimumResourcesRequired.roomName,
             nurseName: combinedSlotsWithMinimumResourcesRequired.nurseName,
             appointmentNumber: appointmentNumber
-            
+
           }))
 
         )
@@ -421,41 +421,83 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
 
   const participantDuration = Math.max(researcherDuration + researcherOffset, nurseDuration + nurseOffset, psychologistDuration + psychologistOffset, roomDuration + roomOffset);
 
-  const earliestStartTime = moment.max(
-    moment(researcherStartTime).subtract(researcherOffset, 'minutes'),
-    moment(nurseStartTime).subtract(nurseOffset, 'minutes'),
-    moment(psychologistStartTime).subtract(psychologistOffset, 'minutes'),
-    moment(roomStartTime).subtract(roomOffset, 'minutes')
-  );
+  let earliestStartTime;
+  let latestStartTime;
 
-  const nurseEndWithOffset = moment(nurseEndTime).subtract(nurseOffset, 'minutes');
-  const researcherEndWithOffset = moment(researcherEndTime).subtract(researcherOffset, 'minutes');
-  const psychologistEndWithOffset = moment(psychologistEndTime).subtract(psychologistOffset, 'minutes');
-  const roomEndWithOffset = moment(roomEndTime).subtract(roomOffset, 'minutes');
+  if (researcherDuration && nurseDuration && psychologistDuration && roomDuration) {
 
-  const latestStartTime = moment.min(
-    moment(researcherEndWithOffset).subtract(researcherDuration, 'minutes'),
-    moment(nurseEndWithOffset).subtract(nurseDuration, 'minutes'),
-    moment(psychologistEndWithOffset).subtract(psychologistDuration, 'minutes'),
-    moment(roomEndWithOffset).subtract(roomDuration, 'minutes')
-  );
+
+    earliestStartTime = moment.max(
+      moment(researcherStartTime).subtract(researcherOffset, 'minutes'),
+      moment(nurseStartTime).subtract(nurseOffset, 'minutes'),
+      moment(psychologistStartTime).subtract(psychologistOffset, 'minutes'),
+      moment(roomStartTime).subtract(roomOffset, 'minutes')
+    );
+
+    const nurseEndWithOffset = moment(nurseEndTime).subtract(nurseOffset, 'minutes');
+    const researcherEndWithOffset = moment(researcherEndTime).subtract(researcherOffset, 'minutes');
+    const psychologistEndWithOffset = moment(psychologistEndTime).subtract(psychologistOffset, 'minutes');
+    const roomEndWithOffset = moment(roomEndTime).subtract(roomOffset, 'minutes');
+
+    latestStartTime = moment.min(
+      moment(researcherEndWithOffset).subtract(researcherDuration, 'minutes'),
+      moment(nurseEndWithOffset).subtract(nurseDuration, 'minutes'),
+      moment(psychologistEndWithOffset).subtract(psychologistDuration, 'minutes'),
+      moment(roomEndWithOffset).subtract(roomDuration, 'minutes')
+    );
+
+  } else if (researcherDuration && roomDuration && psychologistDuration && nurseDuration === 0) {
+    console.log(researcherDuration, nurseDuration, psychologistDuration, roomDuration);
+
+    earliestStartTime = moment.max(
+      moment(researcherStartTime).subtract(researcherOffset, 'minutes'),
+      moment(roomStartTime).subtract(nurseOffset, 'minutes'),
+      moment(psychologistStartTime).subtract(psychologistOffset, 'minutes')
+    );
+
+    const roomEndWithOffset = moment(roomEndTime).subtract(roomOffset, 'minutes');
+    const researcherEndWithOffset = moment(researcherEndTime).subtract(researcherOffset, 'minutes');
+    const psychologistEndWithOffset = moment(psychologistEndTime).subtract(psychologistOffset, 'minutes');
+
+    latestStartTime = moment.min(
+      moment(researcherEndWithOffset).subtract(researcherDuration, 'minutes'),
+      moment(roomEndWithOffset).subtract(nurseDuration, 'minutes'),
+      moment(psychologistEndWithOffset).subtract(psychologistDuration, 'minutes')
+    );
+
+  } else if (researcherDuration && nurseDuration && psychologistDuration === 0 && roomDuration === 0) {
+
+    earliestStartTime = moment.max(
+      moment(researcherStartTime).subtract(researcherOffset, 'minutes'),
+      moment(nurseStartTime).subtract(nurseOffset, 'minutes')
+    );
+
+    const nurseEndWithOffset = moment(nurseEndTime).subtract(nurseOffset, 'minutes');
+    const researcherEndWithOffset = moment(researcherEndTime).subtract(researcherOffset, 'minutes');
+
+    latestStartTime = moment.min(
+      moment(researcherEndWithOffset).subtract(researcherDuration, 'minutes'),
+      moment(nurseEndWithOffset).subtract(nurseDuration, 'minutes')
+    );
+
+  }
 
   const timeIncrement = 15; // Time increment in minutes
   const appointmentSlots = [];
   let currentTime = moment(earliestStartTime);
-  
+
   while (currentTime.isSameOrBefore(latestStartTime)) {
     const startTime = moment(currentTime);
     const endTime = moment(currentTime).add(participantDuration, 'minutes');
-  
+
     appointmentSlots.push({
       startTime: startTime.format('YYYY-MM-DD HH:mm'),
       endTime: endTime.format('YYYY-MM-DD HH:mm')
     });
-  
+
     currentTime.add(timeIncrement, 'minutes');
   }
-  
+
   return appointmentSlots;
 
 
