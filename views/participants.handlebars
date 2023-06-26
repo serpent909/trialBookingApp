@@ -42,9 +42,9 @@
         <td>{{participantId}}</td>
         {{#each appointments}}
         <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
-          class="{{#if this}}booked{{else}}open{{/if}}">
-          {{#if this}}
-          {{formatTime this}}
+          data-appointment-id="{{this.appointmentId}}" class="{{#if this.startTime}}booked{{else}}open{{/if}}">
+          {{#if this.startTime}}
+          {{formatTime this.startTime}}
           {{/if}}
         </td>
         {{/each}}
@@ -113,7 +113,9 @@
   <div id="existing-booking-modal" style="display: none;">
     <!-- Details of the existing booking -->
     <p id="existing-booking-details"></p>
+    <p id="existing-booking-id"></p>
     <button onclick="closeExistingModal()">Close</button>
+    <button onclick="deleteAppointment()">Delete Appointment</button>
   </div>
 
   <div id="overlay"></div>
@@ -136,17 +138,44 @@
       document.getElementById('overlay').style.display = 'none';
     }
 
+    function deleteAppointment() {
+      let appointmentIdElement = document.getElementById('existing-booking-id');
+      let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
+
+      fetch('/appointments/' + appointmentToDeleteId, {
+        method: 'DELETE',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Success:', data);
+          closeExistingModal();
+          window.location.reload(); // reload the page to reflect changes
+        })
+        .catch((error) => {
+          alert('There was an error. Please try again.');
+        });
+    }
+
     // Cell click event listener
     document.querySelectorAll('td').forEach((td) => {
       td.addEventListener('click', function () {
+        console.log(this.dataset)
+
         const participantId = this.dataset.participantId;
         const appointmentNumber = this.dataset.appointmentNumber;
+        const appointmentId = this.dataset.appointmentId;
         const startTime = this.textContent.trim();
 
         if (startTime) {
           // Hide booking modal in case it's displayed
           document.getElementById('booking-modal').style.display = 'none';
           document.getElementById('existing-booking-details').textContent = 'Appointment at ' + startTime;
+          document.getElementById('existing-booking-id').textContent = 'Appointment ID: ' + appointmentId
           document.getElementById('existing-booking-modal').style.display = 'block';
           document.getElementById('overlay').style.display = 'block';
         } else {

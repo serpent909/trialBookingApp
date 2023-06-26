@@ -12,6 +12,7 @@
 
 
 //TODO: 
+//Delete appointment
 //For appointment three onwards:
   //-auto book option
 //edit individual appointment
@@ -242,8 +243,6 @@ app.post("/appointments", async (req, res) => {
 
       console.log(req.body)
  
-
-
     const nurse_id = 3;
 
     let {
@@ -288,8 +287,6 @@ app.post("/appointments2", async (req, res) => {
 
       console.log(req.body)
  
-
-
     const nurse_id = 3;
 
     let {
@@ -301,8 +298,6 @@ app.post("/appointments2", async (req, res) => {
       start_time,
       end_time
     } = req.body;
-
-
 
 
     //TODO: Tidy up parseInt
@@ -351,12 +346,19 @@ app.get("/participants", async (req, res) => {
       let appointmentIndex = booking.appointment_number - 1;
 
       if (participantIndex > -1) {
-        arrangedData[participantIndex].appointments[appointmentIndex] = booking.start_time;
+        arrangedData[participantIndex].appointments[appointmentIndex] = 
+        
+        {
+          startTime: booking.start_time,
+          appointmentId: booking.id
+        }
+
       } else {
         console.log(`Invalid participant id: ${booking.participant_id}`);
       }
     });
 
+ 
     res.render("participants", { title: "Participants", participantBookings, arrangedData });
 
 
@@ -365,6 +367,26 @@ app.get("/participants", async (req, res) => {
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve participants" });
   }
 
+});
+
+app.delete("/appointments/:id", async (req, res) => {
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const { id } = req.params;
+
+    await db.run(`DELETE FROM booked_times WHERE appointment_id =?`, id)
+    await db.run(`DELETE FROM appointments WHERE id = ?`, id);
+
+    res.status(200).json({ message: "Appointment deleted successfully" });
+
+  } catch (err) {
+    console.error('Failed to delete appointment:', err);
+    res.status(500).send("Failed to delete appointment");
+  }
 });
 
 
