@@ -13,7 +13,6 @@
 //-auto book option
 
 //TODO: 
-//edit individual appointment
 //shift all appointments x weeks option
 //need a new booking type which is for blocking out time for any resource
 
