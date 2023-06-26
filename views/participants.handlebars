@@ -1,7 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>Participants</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <link rel="stylesheet" href="/css/form.css">
   <link rel="stylesheet" href="/css/table.css">
   <style>
@@ -12,7 +15,6 @@
 
     td:hover {
       background-color: #4287F5;
-
     }
   </style>
 </head>
@@ -39,8 +41,12 @@
       <tr>
         <td>{{participantId}}</td>
         {{#each appointments}}
-        <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}">{{#if
-          this}}{{formatTime this}}{{/if}}</td>
+        <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
+          class="{{#if this}}booked{{else}}open{{/if}}">
+          {{#if this}}
+          {{formatTime this}}
+          {{/if}}
+        </td>
         {{/each}}
       </tr>
       {{/each}}
@@ -49,9 +55,7 @@
 
   <!-- The booking form, hidden inside a modal -->
   <div id="booking-modal" style="display: none;">
-    <!-- Booking form -->
     <form action="/appointments" method="POST" id="appointmentForm">
-
       <label for="participant_id">Participant ID:</label>
       <select id="participant_id" name="participant_id" required>
         <option value="">Select Participant</option>
@@ -98,7 +102,6 @@
       <label for="unformatted_end_time">End Time:</label>
       <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required step="900">
 
-      <!-- Hidden fields for the server -->
       <input type="hidden" id="start_time" name="start_time">
       <input type="hidden" id="end_time" name="end_time">
 
@@ -106,34 +109,59 @@
     </form>
   </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <!-- The existing booking modal, hidden inside a modal -->
+  <div id="existing-booking-modal" style="display: none;">
+    <!-- Details of the existing booking -->
+    <p id="existing-booking-details"></p>
+    <button onclick="closeExistingModal()">Close</button>
+  </div>
+
+  <div id="overlay"></div>
 
   <script>
-    $(function () {
-      $("#booking-modal").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 500
-      });
-    });
 
+    function openModal() {
+      document.getElementById('booking-modal').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('booking-modal').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    // Close function for the existing booking modal
+    function closeExistingModal() {
+      document.getElementById('existing-booking-modal').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    // Cell click event listener
     document.querySelectorAll('td').forEach((td) => {
       td.addEventListener('click', function () {
         const participantId = this.dataset.participantId;
         const appointmentNumber = this.dataset.appointmentNumber;
-        const startTime = this.textContent;
+        const startTime = this.textContent.trim();
 
-        // Populate the booking form with the cell's data
-        document.getElementById('participant_id').value = participantId;
-        document.getElementById('appointment_number').value = appointmentNumber;
-        document.getElementById('unformatted_start_time').value = startTime;
-
-        // Open the booking modal
-        $("#booking-modal").dialog("open");
+        if (startTime) {
+          // Hide booking modal in case it's displayed
+          document.getElementById('booking-modal').style.display = 'none';
+          document.getElementById('existing-booking-details').textContent = 'Appointment at ' + startTime;
+          document.getElementById('existing-booking-modal').style.display = 'block';
+          document.getElementById('overlay').style.display = 'block';
+        } else {
+          // Hide existing booking modal in case it's displayed
+          document.getElementById('existing-booking-modal').style.display = 'none';
+          document.getElementById('participant_id').value = participantId;
+          document.getElementById('appointment_number').value = appointmentNumber;
+          openModal();
+        }
       });
     });
+
+    document.getElementById('overlay').addEventListener('click', closeModal);
+    document.getElementById('overlay').addEventListener('click', closeExistingModal);
+
 
     const form = document.getElementById('appointmentForm');
     const startInput = document.getElementById('unformatted_start_time');
@@ -143,8 +171,6 @@
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-
-      // Format the start and end times for the hidden inputs
       formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
       formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
 
@@ -160,22 +186,19 @@
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          // Skip parsing the response as JSON if not needed.
           return response.statusText;
         })
         .then(data => {
-          console.log(data);  // You will see 'Appointment created successfully' here.
-
-          // Close the booking modal
-          $("#booking-modal").dialog("close");
-
-          // Redirect to a success page, or show a success message
-          window.location.href = "/participants"; // change this to where you want to redirect
+          console.log(data);
+          closeModal();
+          window.location.href = "/participants";
         })
         .catch((error) => {
           console.error('Error:', error);
-          // Show error message to user, for instance using an alert box
           alert('There was an error. Please try again.');
         });
     });
   </script>
+</body>
+
+</html>

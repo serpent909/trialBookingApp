@@ -10,11 +10,24 @@
 //Potentially generate available slots in 15-minute increments?
 
 
+
 //TODO: 
-//Add logic to prevent double booking of resources
-//Edit existing bookings
+//For appointment three onwards:
+  //-auto book option
+//edit individual appointment
+//shift all appointments x weeks option
+//need a new booking type which is for blocking out time for any resource
+
 //Edit base availability (add more or remove some)
+//room3 needs its own type
+
+//Add logic to prevent double booking of resources
+
+//Something to change the future availability from x date but would also need to check impact on existing appointments
+
 //Authentication?
+
+
 
 
 const express = require("express");
@@ -122,13 +135,15 @@ const researcherIds = [
   { id: 2, name: "Researcher 2" },
 ];
 
+
+
 app.locals.researcher_ids = researcherIds;
 app.locals.psychologist_ids = psychologistIds;
 app.locals.room_ids = roomIds;
 app.locals.appointment_numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const participantIds = Array.from({ length: 40 }, (_, i) => i + 1);
-app.locals.participant_ids = participantIds;
+app.locals.participant_ids = [1, 2, 3, 4, 5, 6, 7, 8];
 
 // APIs
 app.get("/", (req, res) => {

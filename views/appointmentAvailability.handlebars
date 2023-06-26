@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/form2.css">
 
   <script>
+    
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('appointmentTypeForm');
 
@@ -26,20 +27,25 @@
         const psychologistName = document.getElementById('psychologistName').value;
         const roomName = document.getElementById('roomName').value;
         const appointmentNumber = document.getElementById('appointmentNumber').value;
+        const participantNumber = document.getElementById('participantNumber').value;
+        
 
         // Store the form values in localStorage
         const formValues = {
           startDate: startDate,
           endDate: endDate,
           appointmentNumber: appointmentNumber,
+          participantNumber: participantNumber,
           psychologistName: psychologistName,
           roomName: roomName,
-          researcherName: researcherName
+          researcherName: researcherName,
+
         };
         localStorage.setItem('formValues', JSON.stringify(formValues));
 
         // Update the form field values
         populateForm(formValues);
+
 
         // Perform form submission if needed
         // form.submit();
@@ -48,12 +54,15 @@
       function populateForm(values) {
         document.getElementById('startDate').value = values.startDate || '';
         document.getElementById('endDate').value = values.endDate || '';
+        document.getElementById('participantNumber').value = values.participantNumber;
         document.getElementById('appointmentNumber').value = values.appointmentNumber || '';
         document.getElementById('psychologistName').value = values.psychologistName || '';
         document.getElementById('researcherName').value = values.researcherName || '';
         document.getElementById('roomName').value = values.roomName || '';
       }
     });
+
+    //select all cards, populate with participant number
   </script>
 </head>
 
@@ -62,56 +71,71 @@
 
   <h2>Enter Appointment Details</h2>
 
- <form id="appointmentTypeForm">
-  <div class="form-group">
-    <label for="startDate">Start Date</label>
-    <input type="date" id="startDate" name="startDate">
-  </div>
+  <form id="appointmentTypeForm">
+    <div class="form-group">
+      <label for="startDate">Start Date</label>
+      <input type="date" id="startDate" name="startDate">
+    </div>
 
-  <div class="form-group">
-    <label for="endDate">End Date</label>
-    <input type="date" id="endDate" name="endDate">
-  </div>
+    <div class="form-group">
+      <label for="endDate">End Date</label>
+      <input type="date" id="endDate" name="endDate">
+    </div>
 
-  <div class="form-group">
-    <label for="appointmentNumber">Appointment</label>
-    <input type="number" id="appointmentNumber" name="appointmentNumber">
-  </div>
+    <div class="form-group">
+      <label for="participantNumber">Participant</label>
+      <select id="participantNumber" name="participantNumber">
+        <option value="">Select Participant</option>
+        {{#each participant_ids}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label for="psychologistName">Psychologist</label>
-    <select id="psychologistName" name="psychologistName">
-      <option value="">Select Psychologist</option>
-      {{#each dropDownOptions.psychologistNames}}
-      <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
-  </div>
+    <div class="form-group">
+      <label for="appointmentNumber">Appointment</label>
+      <select id="appointmentNumber" name="appointmentNumber">
+        <option value="">Select Appointment</option>
+        {{#each appointment_numbers}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label for="roomName">Room</label>
-    <select id="roomName" name="roomName">
-      <option value="">Select Room</option>
-      {{#each dropDownOptions.roomNames}}
-      <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
-  </div>
+    <div class="form-group">
+      <label for="psychologistName">Psychologist</label>
+      <select id="psychologistName" name="psychologistName">
+        <option value="">Select Psychologist</option>
+        {{#each dropDownOptions.psychologistNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label for="researcherName">Researcher</label>
-    <select id="researcherName" name="researcherName">
-      <option value="">Select Researcher</option>
-      {{#each dropDownOptions.researcherNames}}
-      <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
-  </div>
+    <div class="form-group">
+      <label for="roomName">Room</label>
+      <select id="roomName" name="roomName">
+        <option value="">Select Room</option>
+        {{#each dropDownOptions.roomNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-  <div class="form-group button">
-    <button type="submit"><strong>Find Slots</strong></button>
-  </div>
-</form>
+    <div class="form-group">
+      <label for="researcherName">Researcher</label>
+      <select id="researcherName" name="researcherName">
+        <option value="">Select Researcher</option>
+        {{#each dropDownOptions.researcherNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="form-group button">
+      <button type="submit"><strong>Find Slots</strong></button>
+    </div>
+  </form>
 
   <h2>Available Slots</h2>
 
@@ -124,6 +148,8 @@
       </div>
       <div class="card-body">
         <p><strong>Appointment Number:</strong> <span>{{appointmentNumber}}</span></p>
+        <p><strong>Participant Number:</strong> <span id="participant-number"></span></p>
+
         <p><strong>Date:</strong> <span>{{getDate startTime}}</span></p>
         <p><strong>Start Time:</strong> <span id="start-time">{{getTime startTime}}</span></p>
         <p><strong>End Time:</strong> <span id="end-time">{{getTime endTime}}</span></p>
@@ -152,6 +178,8 @@
           </button>
         </div>
         <div class="modal-body">
+          <p><strong>Appointment Number:</strong> <span id="appointmentNumberModal"></span></p>
+          <p><strong>Participant Number:</strong> <span id="participantNumberModal"></span></p>
           <p><strong>Start Time:</strong> <span id="startTimeModal"></span></p>
           <p><strong>End Time:</strong> <span id="endTimeModal"></span></p>
           <p><strong>Researcher:</strong> <span id="researcherNameModal"></span></p>

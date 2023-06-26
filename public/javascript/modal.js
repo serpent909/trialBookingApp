@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
   bookButtons.forEach(function (button) {
     button.addEventListener('click', function () {
       const card = button.closest('.card');
+
       const startTime = card.querySelector('#start-time').textContent;
       const endTime = card.querySelector('#end-time').textContent;
       const researcherName = card.querySelector('#researcher-name').textContent;
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Populate the content of the modal with the selected appointment details
   function populateModalContent() {
+
     document.getElementById('startTimeModal').textContent = selectedAppointment.startTime;
     document.getElementById('endTimeModal').textContent = selectedAppointment.endTime;
     document.getElementById('researcherNameModal').textContent = selectedAppointment.researcherName;
