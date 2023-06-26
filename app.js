@@ -9,13 +9,10 @@
 //Improve available appointments view by incorporating appointment number logic
 //Potentially generate available slots in 15-minute increments?
 //Delete appointment
-
-
-
-//TODO: 
-
 //For appointment three onwards:
 //-auto book option
+
+//TODO: 
 //edit individual appointment
 //shift all appointments x weeks option
 //need a new booking type which is for blocking out time for any resource
@@ -23,13 +20,9 @@
 //Edit base availability (add more or remove some)
 //room3 needs its own type
 
-//Add logic to prevent double booking of resources
-
+//Add logic to prevent double booking of resources/booking in unavailable times
 //Something to change the future availability from x date but would also need to check impact on existing appointments
-
 //Authentication?
-
-
 
 const moment = require("moment");
 const express = require("express");
@@ -101,20 +94,13 @@ app.engine(
 
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
-
-// Setup body-parser
 app.use(express.urlencoded({ extended: false }));
-
-// Setup express to parse JSON
 app.use(express.json());
-
-// Make the "public" folder available statically
 app.use(express.static(path.join(__dirname, "public")));
 
-// Require and run database.js
 require("./modules/database.js");
 
-//Global variables
+//Global constnats
 app.locals.siteName = "Booking App";
 
 const psychologistIds = [
@@ -136,8 +122,6 @@ const researcherIds = [
   { id: 1, name: "Researcher 1" },
   { id: 2, name: "Researcher 2" },
 ];
-
-
 
 app.locals.researcher_ids = researcherIds;
 app.locals.psychologist_ids = psychologistIds;
@@ -190,11 +174,8 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-
-
     // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName } = req.query;
-
 
     //populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
@@ -211,11 +192,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
-
-
-
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber);
-
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -234,7 +211,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 });
 
 
-//Add an appointment to the database
+//Boook appointment(s)
 app.post("/appointments", async (req, res) => {
   console.log(req.body)
   try {
@@ -273,8 +250,6 @@ app.post("/appointments", async (req, res) => {
       }
     }
 
-
-
     if (multiple_appointments == 'false') {
       //TODO: Tidy up parseInt
       await appointmentService.createAppointment(
@@ -294,11 +269,6 @@ app.post("/appointments", async (req, res) => {
     console.error('Failed to create appointment:', err);
     res.status(500).send("Failed to create appointment");
   }
-});
-
-app.get("/book-appointment", (req, res) => {
-
-  res.render("bookAppointment", { title: "Book Appointment" });
 });
 
 
@@ -333,9 +303,7 @@ app.get("/participants", async (req, res) => {
       }
     });
 
-
     res.render("participants", { title: "Participants", participantBookings, arrangedData });
-
 
   } catch (err) {
     console.error('Failed to retrieve participants:', err);
