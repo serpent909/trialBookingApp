@@ -97,13 +97,17 @@
       </select>
 
       <label for="unformatted_start_time">Start Time:</label>
-      <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required step="900">
+      <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required>
 
-      <label for="unformatted_end_time">End Time:</label>
-      <input type="datetime-local" id="unformatted_end_time" name="unformatted_end_time" required step="900">
+
+      <label for="multiple_appointments" style="display: none;">Book Remaining Appointments?</label>
+      <select id="multiple_appointments" name="multiple_appointments" style="display: none;" required>
+        <option value="false" selected="selected">No</option>
+        <option value="true">Yes</option>
+      </select>
+
 
       <input type="hidden" id="start_time" name="start_time">
-      <input type="hidden" id="end_time" name="end_time">
 
       <button type="submit">Book Appointment</button>
     </form>
@@ -185,6 +189,18 @@
           document.getElementById('appointment_number').value = appointmentNumber;
           openModal();
         }
+
+        const multipleAppointmentsLabel = document.querySelector('label[for="multiple_appointments"]');
+        const multipleAppointmentsSelect = document.getElementById('multiple_appointments');
+
+
+        if (appointmentNumber >= 3) {
+          multipleAppointmentsLabel.style.display = 'block';
+          multipleAppointmentsSelect.style.display = 'block';
+        } else {
+          multipleAppointmentsLabel.style.display = 'none';
+          multipleAppointmentsSelect.style.display = 'none';
+        }
       });
     });
 
@@ -194,14 +210,12 @@
 
     const form = document.getElementById('appointmentForm');
     const startInput = document.getElementById('unformatted_start_time');
-    const endInput = document.getElementById('unformatted_end_time');
     const formattedStartInput = document.getElementById('start_time');
-    const formattedEndInput = document.getElementById('end_time');
+    const multipleAppointments = document.getElementById('multiple_appointments')
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
-      formattedEndInput.value = moment(endInput.value).format('YYYY-MM-DD HH:mm:ss');
 
       const formData = new FormData(this);
       fetch('/appointments', {

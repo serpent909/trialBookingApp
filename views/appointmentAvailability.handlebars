@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/form2.css">
 
   <script>
-    
+
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('appointmentTypeForm');
 
@@ -28,7 +28,7 @@
         const roomName = document.getElementById('roomName').value;
         const appointmentNumber = document.getElementById('appointmentNumber').value;
         const participantNumber = document.getElementById('participantNumber').value;
-        
+
 
         // Store the form values in localStorage
         const formValues = {
@@ -46,9 +46,6 @@
         // Update the form field values
         populateForm(formValues);
 
-
-        // Perform form submission if needed
-        // form.submit();
       });
 
       function populateForm(values) {
@@ -62,7 +59,6 @@
       }
     });
 
-    //select all cards, populate with participant number
   </script>
 </head>
 

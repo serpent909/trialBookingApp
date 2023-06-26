@@ -2,28 +2,40 @@ const fs = require("fs");
 const moment = require('moment');
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
-async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_number, start_time, end_time) {
+async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_number, start_time) {
 
 
-
+  let end_time;
   let appointment_type_id;
 
-  if(appointment_number === 1) {
+  if (appointment_number === 1) {
     appointment_type_id = 1;
-  } else if(appointment_number === 2) {
+  } else if (appointment_number === 2) {
     appointment_type_id = 2;
-  } else if(appointment_number === 3) {
+  } else if (appointment_number === 3) {
     appointment_type_id = 3;
-  } else if(appointment_number === 4) {
+  } else if (appointment_number === 4) {
     appointment_type_id = 3;
-  } else if(appointment_number === 5) {
+  } else if (appointment_number === 5) {
     appointment_type_id = 3;
-  } else if(appointment_number === 6) {
+  } else if (appointment_number === 6) {
     appointment_type_id = 3;
-  } else if(appointment_number === 7) {
+  } else if (appointment_number === 7) {
     appointment_type_id = 3;
-  } else if(appointment_number === 8) {
+  } else if (appointment_number === 8) {
     appointment_type_id = 3;
+  }
+
+  if (appointment_type_id === 1) {
+    end_time = moment(start_time).add(180, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
+    console.log(end_time)
+  } else if (appointment_type_id === 2) {
+    end_time = moment(start_time).add(390, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
+  } else if (appointment_type_id === 3) {
+    end_time = moment(start_time).add(150, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
   }
 
 
