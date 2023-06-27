@@ -5,6 +5,7 @@ const appointmentRules = JSON.parse(fs.readFileSync('./config/appointmentRules.j
 
 function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, researcherName, psychologistName, roomName) {
 
+
   let appointment_type_id;
 
   if (appointmentNumber == 1) {

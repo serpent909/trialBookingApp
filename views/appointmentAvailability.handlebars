@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/form2.css">
 
   <script>
-    
+
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('appointmentTypeForm');
 
@@ -19,7 +19,6 @@
 
       form.addEventListener('submit', function (event) {
 
-
         // Retrieve the form field values
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
@@ -28,7 +27,7 @@
         const roomName = document.getElementById('roomName').value;
         const appointmentNumber = document.getElementById('appointmentNumber').value;
         const participantNumber = document.getElementById('participantNumber').value;
-        
+
 
         // Store the form values in localStorage
         const formValues = {
@@ -41,14 +40,11 @@
           researcherName: researcherName,
 
         };
+
         localStorage.setItem('formValues', JSON.stringify(formValues));
 
         // Update the form field values
         populateForm(formValues);
-
-
-        // Perform form submission if needed
-        // form.submit();
       });
 
       function populateForm(values) {
@@ -59,10 +55,19 @@
         document.getElementById('psychologistName').value = values.psychologistName || '';
         document.getElementById('researcherName').value = values.researcherName || '';
         document.getElementById('roomName').value = values.roomName || '';
+
+        populateCard(values);
       }
     });
 
-    //select all cards, populate with participant number
+    function populateCard(formValues) {
+
+      let cards = document.querySelectorAll('.participant-number');
+      cards.forEach(function (card) {
+        card.innerHTML = formValues.participantNumber;
+      });
+    }
+
   </script>
 </head>
 
@@ -133,9 +138,11 @@
     </div>
 
     <div class="form-group button">
-      <button type="submit"><strong>Find Slots</strong></button>
+      <button id="findSlotsButton" type="submit"><strong>Find Slots</strong></button>
     </div>
   </form>
+
+
 
   <h2>Available Slots</h2>
 
@@ -148,7 +155,7 @@
       </div>
       <div class="card-body">
         <p><strong>Appointment Number:</strong> <span>{{appointmentNumber}}</span></p>
-        <p><strong>Participant Number:</strong> <span id="participant-number"></span></p>
+        <p><strong>Participant Number:</strong> <span class="participant-number"></span></p>
 
         <p><strong>Date:</strong> <span>{{getDate startTime}}</span></p>
         <p><strong>Start Time:</strong> <span id="start-time">{{getTime startTime}}</span></p>

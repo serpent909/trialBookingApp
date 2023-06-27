@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     closeBookingModal();
     
 
-    const url = '/appointments2'; // replace with your endpoint url
+    const url = '/appointments'; 
 
     fetch(url, {
       method: 'POST', // or 'PUT'
