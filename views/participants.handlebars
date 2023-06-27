@@ -168,7 +168,6 @@
     // Cell click event listener
     document.querySelectorAll('td').forEach((td) => {
       td.addEventListener('click', function () {
-        console.log(this.dataset)
 
         const participantId = this.dataset.participantId;
         const appointmentNumber = this.dataset.appointmentNumber;

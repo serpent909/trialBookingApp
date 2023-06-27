@@ -13,6 +13,7 @@
 //-auto book option
 
 //TODO: 
+//check additional slots available when an illegal booking is made. How to stop illegal bookings from the participants table.
 //shift all appointments x weeks option
 //need a new booking type which is for blocking out time for any resource
 
@@ -191,7 +192,9 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
-    const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber);
+    const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
+
+ 
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -212,7 +215,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
-  console.log(req.body)
+
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
@@ -245,7 +248,7 @@ app.post("/appointments", async (req, res) => {
         );
         start_time = moment(start_time).add(7, 'days').format('YYYY-MM-DD HH:mm:ss');
         appointment_number = i + 1;
-        console.log(start_time)
+
       }
     }
 

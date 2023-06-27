@@ -29,7 +29,6 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
   if (appointment_type_id === 1) {
     end_time = moment(start_time).add(180, 'minutes')
     end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
-    console.log(end_time)
   } else if (appointment_type_id === 2) {
     end_time = moment(start_time).add(390, 'minutes')
     end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
