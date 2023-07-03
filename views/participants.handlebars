@@ -46,6 +46,8 @@
           {{#if this.startTime}}
           {{formatTime this.startTime}}
           {{/if}}
+          <br>
+          {{this.psychologist}}
         </td>
         {{/each}}
       </tr>
@@ -55,61 +57,55 @@
 
   <!-- The booking form, hidden inside a modal -->
   <div id="booking-modal" style="display: none;">
-    <form action="/appointments" method="POST" id="appointmentForm">
-      <label for="participant_id">Participant ID:</label>
-      <select id="participant_id" name="participant_id" required>
+    <form id="appointmentForm">
+      <label for="participantNumber">Participant ID:</label>
+      <select id="participantNumber" name="participantNumber" required>
         <option value="">Select Participant</option>
         {{#each participant_ids}}
         <option value="{{this}}">{{this}}</option>
         {{/each}}
       </select>
 
-      <label for="researcher_id">Researcher ID:</label>
-      <select id="researcher_id" name="researcher_id" required>
-        <option value="">Select Researcher</option>
-        {{#each researcher_ids}}
-        <option value="{{id}}">{{name}}</option>
-        {{/each}}
-      </select>
-
-      <label for="psychologist_id">Psychologist ID:</label>
-      <select id="psychologist_id" name="psychologist_id">
-        <option value="">Select Psychologist</option>
-        {{#each psychologist_ids}}
-        <option value="{{id}}">{{name}}</option>
-        {{/each}}
-      </select>
-
-      <label for="room_id">Room ID:</label>
-      <select id="room_id" name="room_id" required>
-        <option value="">Select Room</option>
-        {{#each room_ids}}
-        <option value="{{id}}">{{name}}</option>
-        {{/each}}
-      </select>
-
-      <label for="appointment_number">Appointment Number:</label>
-      <select id="appointment_number" name="appointment_number" required>
+      <label for="appointmentNumber">Appointment Number:</label>
+      <select id="appointmentNumber" name="appointmentNumber" required>
         <option value="">Select Appointment Number</option>
         {{#each appointment_numbers}}
         <option value="{{this}}">{{this}}</option>
         {{/each}}
       </select>
 
-      <label for="unformatted_start_time">Start Time:</label>
-      <input type="datetime-local" id="unformatted_start_time" name="unformatted_start_time" required>
+      <label for="startDate">Start Date</label>
+      <input type="date" id="startDate" name="startDate">
 
+      <label for="endDate">End Date</label>
+      <input type="date" id="endDate" name="endDate">
 
-      <label for="multiple_appointments" style="display: none;">Book Remaining Appointments?</label>
-      <select id="multiple_appointments" name="multiple_appointments" style="display: none;" required>
-        <option value="false" selected="selected">No</option>
-        <option value="true">Yes</option>
+      <label for="researcherName">Researcher</label>
+      <select id="researcherName" name="researcherName">
+        <option value="">Select Researcher</option>
+        {{#each dropDownOptions.researcherNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+
+      <label for="psychologistName">Psychologist</label>
+      <select id="psychologistName" name="psychologistName">
+        <option value="">Select Psychologist</option>
+        {{#each dropDownOptions.psychologistNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
       </select>
 
 
-      <input type="hidden" id="start_time" name="start_time">
+      <label for="roomName">Room</label>
+      <select id="roomName" name="roomName">
+        <option value="">Select Room</option>
+        {{#each dropDownOptions.roomNames}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
 
-      <button type="submit">Book Appointment</button>
+      <button type="submit">Search for</button>
     </form>
   </div>
 
@@ -184,22 +180,11 @@
         } else {
           // Hide existing booking modal in case it's displayed
           document.getElementById('existing-booking-modal').style.display = 'none';
-          document.getElementById('participant_id').value = participantId;
-          document.getElementById('appointment_number').value = appointmentNumber;
+          document.getElementById('participantNumber').value = participantId;
+          document.getElementById('appointmentNumber').value = appointmentNumber;
           openModal();
         }
 
-        const multipleAppointmentsLabel = document.querySelector('label[for="multiple_appointments"]');
-        const multipleAppointmentsSelect = document.getElementById('multiple_appointments');
-
-
-        if (appointmentNumber >= 3) {
-          multipleAppointmentsLabel.style.display = 'block';
-          multipleAppointmentsSelect.style.display = 'block';
-        } else {
-          multipleAppointmentsLabel.style.display = 'none';
-          multipleAppointmentsSelect.style.display = 'none';
-        }
       });
     });
 
@@ -208,38 +193,26 @@
 
 
     const form = document.getElementById('appointmentForm');
-    const startInput = document.getElementById('unformatted_start_time');
+
     const formattedStartInput = document.getElementById('start_time');
-    const multipleAppointments = document.getElementById('multiple_appointments')
+
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      formattedStartInput.value = moment(startInput.value).format('YYYY-MM-DD HH:mm:ss');
+
+
 
       const formData = new FormData(this);
-      fetch('/appointments', {
-        method: 'POST',
-        body: JSON.stringify(Object.fromEntries(formData)),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.statusText;
-        })
-        .then(data => {
-          console.log(data);
-          closeModal();
-          window.location.href = "/participants";
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-          alert('There was an error. Please try again.');
-        });
-    });
+      const searchParams = new URLSearchParams(formData); // Convert form data to URL search parameters
+      const queryString = searchParams.toString(); // Get the query string from the search parameters
+
+      // Redirect to the second page with the query string
+      window.location.href = '/appointmentAvailability?' + queryString;
+    })
+
+
+
+
   </script>
 </body>
 

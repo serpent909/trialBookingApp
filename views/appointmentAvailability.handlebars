@@ -4,71 +4,11 @@
 <head>
   <title>{{ title }}</title>
   <link rel="stylesheet" href="/css/modal.css">
+  <link rel="stylesheet" href="/css/card.css">
   <link rel="stylesheet" href="/css/form2.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-  <script>
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('appointmentTypeForm');
-
-      // Restore form values from localStorage if available
-      if (localStorage.getItem('formValues')) {
-        const storedValues = JSON.parse(localStorage.getItem('formValues'));
-        populateForm(storedValues);
-      }
-
-      form.addEventListener('submit', function (event) {
-
-        // Retrieve the form field values
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const researcherName = document.getElementById('researcherName').value;
-        const psychologistName = document.getElementById('psychologistName').value;
-        const roomName = document.getElementById('roomName').value;
-        const appointmentNumber = document.getElementById('appointmentNumber').value;
-        const participantNumber = document.getElementById('participantNumber').value;
-
-
-        // Store the form values in localStorage
-        const formValues = {
-          startDate: startDate,
-          endDate: endDate,
-          appointmentNumber: appointmentNumber,
-          participantNumber: participantNumber,
-          psychologistName: psychologistName,
-          roomName: roomName,
-          researcherName: researcherName,
-
-        };
-
-        localStorage.setItem('formValues', JSON.stringify(formValues));
-
-        // Update the form field values
-        populateForm(formValues);
-      });
-
-      function populateForm(values) {
-        document.getElementById('startDate').value = values.startDate || '';
-        document.getElementById('endDate').value = values.endDate || '';
-        document.getElementById('participantNumber').value = values.participantNumber;
-        document.getElementById('appointmentNumber').value = values.appointmentNumber || '';
-        document.getElementById('psychologistName').value = values.psychologistName || '';
-        document.getElementById('researcherName').value = values.researcherName || '';
-        document.getElementById('roomName').value = values.roomName || '';
-
-        populateCard(values);
-      }
-    });
-
-    function populateCard(formValues) {
-
-      let cards = document.querySelectorAll('.participant-number');
-      cards.forEach(function (card) {
-        card.innerHTML = formValues.participantNumber;
-      });
-    }
-
-  </script>
 </head>
 
 <body>
@@ -79,17 +19,17 @@
   <form id="appointmentTypeForm">
     <div class="form-group">
       <label for="startDate">Start Date</label>
-      <input type="date" id="startDate" name="startDate">
+      <input type="date" id="startDate" name="startDate" required>
     </div>
 
     <div class="form-group">
       <label for="endDate">End Date</label>
-      <input type="date" id="endDate" name="endDate">
+      <input type="date" id="endDate" name="endDate" required>
     </div>
 
     <div class="form-group">
       <label for="participantNumber">Participant</label>
-      <select id="participantNumber" name="participantNumber">
+      <select id="participantNumber" name="participantNumber" required>
         <option value="">Select Participant</option>
         {{#each participant_ids}}
         <option value="{{this}}">{{this}}</option>
@@ -97,9 +37,11 @@
       </select>
     </div>
 
+    
+
     <div class="form-group">
       <label for="appointmentNumber">Appointment</label>
-      <select id="appointmentNumber" name="appointmentNumber">
+      <select id="appointmentNumber" name="appointmentNumber" required>
         <option value="">Select Appointment</option>
         {{#each appointment_numbers}}
         <option value="{{this}}">{{this}}</option>
@@ -142,10 +84,7 @@
     </div>
   </form>
 
-
-
   <h2>Available Slots</h2>
-
 
   <div class="card-container">
     {{#each formattedTimeSlotsWithAppointmentNumberLogic}}
@@ -154,10 +93,10 @@
         <h3>Appointment Details</h3>
       </div>
       <div class="card-body">
-        <p><strong>Appointment Number:</strong> <span>{{appointmentNumber}}</span></p>
+        <p><strong>Appointment Number:</strong> <span class="appointment-number">{{appointmentNumber}}</span></p>
         <p><strong>Participant Number:</strong> <span class="participant-number"></span></p>
 
-        <p><strong>Date:</strong> <span>{{getDate startTime}}</span></p>
+        <p><strong>Date:</strong> <span id="date">{{getDate startTime}}</span></p>
         <p><strong>Start Time:</strong> <span id="start-time">{{getTime startTime}}</span></p>
         <p><strong>End Time:</strong> <span id="end-time">{{getTime endTime}}</span></p>
         <p><strong>Researcher:</strong> <span id="researcher-name">{{researcherName}}</span></p>
@@ -187,12 +126,19 @@
         <div class="modal-body">
           <p><strong>Appointment Number:</strong> <span id="appointmentNumberModal"></span></p>
           <p><strong>Participant Number:</strong> <span id="participantNumberModal"></span></p>
+          <p><strong>Date:</strong> <span id="dateModal"></span></p>
           <p><strong>Start Time:</strong> <span id="startTimeModal"></span></p>
           <p><strong>End Time:</strong> <span id="endTimeModal"></span></p>
           <p><strong>Researcher:</strong> <span id="researcherNameModal"></span></p>
           <p><strong>Psychologist:</strong> <span id="psychologistNameModal"></span></p>
           <p><strong>Room:</strong> <span id="roomNameModal"></span></p>
           <p><strong>Nurse:</strong> <span id="nurseNameModal"></span></p>
+          <label for="multiple_appointments">Book Remaining Appointments?</label>
+          <select id="multiple_appointments" name="multiple_appointments" required>
+            <option value="false" selected="selected">No</option>
+            <option value="true">Yes</option>
+          </select>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
@@ -203,6 +149,8 @@
   </div>
 
   <script src="/javascript/modal.js"></script>
+  <script src="/javascript/cards.js"></script>
+
 
 </body>
 

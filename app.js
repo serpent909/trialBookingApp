@@ -37,6 +37,7 @@ const DB_PATH = path.join(__dirname, 'project-database.db');
 
 const availableSlotscalculationService = require('./modules/availableSlotsCalculationService');
 const appointmentService = require('./modules/appointmentService.js');
+const e = require("express");
 
 // Define the formatTime helper
 app.engine(
@@ -52,7 +53,7 @@ app.engine(
         const [hour, minute] = timePart.split(':');
 
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const formattedDate = `${year} ${months[parseInt(month, 10) - 1]} ${day}, ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        const formattedDate = `${year} ${months[parseInt(month, 10) - 1]} ${day}, ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
         return formattedDate;
       },
@@ -60,9 +61,7 @@ app.engine(
         const separator = dateTime.includes('T') ? 'T' : ' ';
         const [datePart, timePart] = dateTime.split(separator);
         const [year, month, day] = datePart.split('-');
-        const [hour, minute] = timePart.split(':');
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const formattedDate = `${day}  ${months[parseInt(month, 10) - 1]} ${year}`;
+        const formattedDate = `${year}-${month}-${day}`;
         return formattedDate;
       },
       getTime: function (dateTime) {
@@ -104,13 +103,13 @@ require("./modules/database.js");
 app.locals.siteName = "Booking App";
 
 const psychologistIds = [
-  { id: 7, name: "Psychologist 1" },
-  { id: 8, name: "Psychologist 2" },
-  { id: 9, name: "Psychologist 3" },
-  { id: 10, name: "Psychologist 4" },
-  { id: 11, name: "Psychologist 5" },
-  { id: 12, name: "Psychologist 6" },
-  { id: 13, name: "Psychologist 7" },
+  { id: 7, name: "Psychologist1" },
+  { id: 8, name: "Psychologist2" },
+  { id: 9, name: "Psychologist3" },
+  { id: 10, name: "Psychologist4" },
+  { id: 11, name: "Psychologist5" },
+  { id: 12, name: "Psychologist6" },
+  { id: 13, name: "Psychologist7" },
 ];
 
 const roomIds = [
@@ -175,7 +174,10 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
 
     // Get the query parameters
-    const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName } = req.query;
+    const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName, participantNumber } = req.query;
+
+
+  
 
     //populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
@@ -193,8 +195,6 @@ app.get("/appointmentAvailability", async (req, res) => {
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
-
- 
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -215,6 +215,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
+  console.log('req.body', req.body)
 
   try {
     const db = await sqlite.open({
@@ -222,32 +223,33 @@ app.post("/appointments", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-    const nurse_id = 3;
-
     let {
-      researcher_id,
-      participant_id,
-      psychologist_id,
-      room_id,
-      appointment_number,
-      start_time,
-      multiple_appointments
+      startTime, 
+      researcherName,
+      psychologistName,
+      roomName,
+      nurseName,
+      participantNumber,
+      appointmentNumber,
+      multiple_appointments,
+      date
     } = req.body;
 
     if (multiple_appointments == 'true') {
-      for (let i = parseInt(appointment_number); i <= 8; i++) {
+      for (let i = parseInt(appointmentNumber); i <= 8; i++) {
         await appointmentService.createAppointment(
           db,
-          parseInt(participant_id),
-          parseInt(researcher_id),
-          nurse_id,
-          parseInt(psychologist_id),
-          parseInt(room_id),
-          parseInt(appointment_number),
-          start_time
+          participantNumber,
+          researcherName,
+          nurseName,
+          psychologistName,
+          roomName,
+          appointmentNumber,
+          date,
+          startTime
         );
-        start_time = moment(start_time).add(7, 'days').format('YYYY-MM-DD HH:mm:ss');
-        appointment_number = i + 1;
+        date = moment(date).add(7, 'days').format('YYYY-MM-DD');
+        appointmentNumber = i + 1;
 
       }
     }
@@ -256,20 +258,23 @@ app.post("/appointments", async (req, res) => {
       //TODO: Tidy up parseInt
       await appointmentService.createAppointment(
         db,
-        parseInt(participant_id),
-        parseInt(researcher_id),
-        nurse_id,
-        parseInt(psychologist_id),
-        parseInt(room_id),
-        parseInt(appointment_number),
-        start_time
+        participantNumber,
+        researcherName,
+        nurseName,
+        psychologistName,
+        roomName,
+        appointmentNumber,
+        date,
+        startTime
       );
     }
 
-    res.status(200).send("Appointment created successfully");
+    
+    res.json({ message: "Appointment created successfully" });
   } catch (err) {
     console.error('Failed to create appointment:', err);
-    res.status(500).send("Failed to create appointment");
+    const errorMessage = err.message || "Failed to create appointment";
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -281,6 +286,13 @@ app.get("/participants", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+    const rows = await db.all("SELECT name, type FROM bookable_things");
+    const dropDownOptions = {
+      roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
+      psychologistNames: rows.filter(row => row.type === 'Psychologist').map(row => row.name),
+      researcherNames: rows.filter(row => row.type === 'Researcher').map(row => row.name)
+    }
+
     const participantBookings = await db.all("SELECT * FROM appointments");
 
     let arrangedData = Array(40).fill().map((_, i) => ({
@@ -288,24 +300,36 @@ app.get("/participants", async (req, res) => {
       appointments: Array(8).fill(null)
     }));
 
-    participantBookings.forEach((booking) => {
+    participantBookings.forEach(async (booking) => {
+   
       let participantIndex = arrangedData.findIndex(participant => participant.participantId === booking.participant_id);
       let appointmentIndex = booking.appointment_number - 1;
+
+      let appointmentPsychologistRow = await db.get(`SELECT * FROM booked_times WHERE appointment_id = ${booking.id} AND booked_name LIKE '%psychologist%'`);
+      let psycholoigst = appointmentPsychologistRow ? appointmentPsychologistRow.booked_name : null;
+
+      let appointmentResearcherRow = await db.get(`SELECT * FROM booked_times WHERE appointment_id = ${booking.id} AND booked_name LIKE '%researcher%'`);
+      let researcher = appointmentResearcherRow ? appointmentResearcherRow.booked_name : null;
 
       if (participantIndex > -1) {
         arrangedData[participantIndex].appointments[appointmentIndex] =
 
         {
           startTime: booking.start_time,
-          appointmentId: booking.id
+          appointmentId: booking.id,
+          psychologist: psycholoigst,
+          researcher: researcher,
+       
         }
+
+        console.log(arrangedData[participantIndex].appointments[appointmentIndex])
 
       } else {
         console.log(`Invalid participant id: ${booking.participant_id}`);
       }
     });
 
-    res.render("participants", { title: "Participants", participantBookings, arrangedData });
+    res.render("participants", { title: "Participants", participantBookings, arrangedData, dropDownOptions });
 
   } catch (err) {
     console.error('Failed to retrieve participants:', err);
