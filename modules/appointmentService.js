@@ -2,8 +2,26 @@ const fs = require("fs");
 const moment = require('moment');
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
-async function createAppointment(db, participant_id, researcher_id, nurse_id, psychologist_id, room_id, appointment_number, start_time) {
+async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
 
+  console.log(participantName)
+
+  startTime = date + ' ' + startTime;
+
+  const researcherRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [researcherName]);
+  const researcher_id = researcherRow? researcherRow.id : null;
+  
+  const nurseRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [nurseName]);
+  const nurse_id = nurseRow? nurseRow.id : null;
+
+  const psychologistRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [psychologistName]);
+  const psychologist_id = psychologistRow? psychologistRow.id : null;
+
+  const roomRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [roomName]);
+  const room_id = roomRow? roomRow.id : null;
+
+  let appointment_number = parseInt(appointmentName)
+  let participant_id = participantName
 
   let end_time;
   let appointment_type_id;
@@ -27,16 +45,15 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
   }
 
   if (appointment_type_id === 1) {
-    end_time = moment(start_time).add(180, 'minutes')
-    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
+    end_time = moment(startTime).add(180, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm')
   } else if (appointment_type_id === 2) {
-    end_time = moment(start_time).add(390, 'minutes')
-    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
+    end_time = moment(startTime).add(390, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm')
   } else if (appointment_type_id === 3) {
-    end_time = moment(start_time).add(150, 'minutes')
-    end_time = end_time.format('YYYY-MM-DD HH:mm:ss')
+    end_time = moment(startTime).add(150, 'minutes')
+    end_time = end_time.format('YYYY-MM-DD HH:mm')
   }
-
 
   await db.run('BEGIN TRANSACTION');
 
@@ -44,7 +61,7 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
     // First, insert into the appointments table
     let result = await db.run(
       "INSERT INTO appointments (participant_id, appointment_number, start_time, end_time) VALUES (?, ?, ?, ?)",
-      [participant_id, appointment_number, start_time, end_time]
+      [participant_id, appointment_number, startTime, end_time]
     );
 
     // Get the id of the appointment just inserted
@@ -55,14 +72,14 @@ async function createAppointment(db, participant_id, researcher_id, nurse_id, ps
 
     // Loop through each bookable thing and insert into the booked_times table
     for (let i = 0; i < bookable_things.length; i++) {
-      if (appointment_type_id === 1 && !bookable_things[i]) {
+      if (!bookable_things[i]) {
         continue;
       }
 
       let bookableThingRow = await db.get('SELECT name FROM bookable_things WHERE id = ?', [bookable_things[i]]);
+   
 
-
-      let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], start_time, end_time);
+      let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], startTime, end_time);
 
       await db.run(
         "INSERT INTO booked_times (appointment_id, bookable_thing_id, booked_name, start_time, end_time) VALUES (?, ?, ?, ?, ?)",

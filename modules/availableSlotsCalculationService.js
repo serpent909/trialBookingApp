@@ -372,7 +372,9 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
 
     }
   }
+
   return finalArray;
+ 
 }
 
 function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResourcesRequired) {
