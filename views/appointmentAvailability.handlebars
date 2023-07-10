@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="/css/modal.css">
   <link rel="stylesheet" href="/css/card.css">
   <link rel="stylesheet" href="/css/form2.css">
+  <link rel="stylesheet" href="/css/form.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
@@ -13,8 +14,6 @@
 
 <body>
   <h1>Find an available appointment</h1>
-
-  <h2>Enter Appointment Details</h2>
 
   <form id="appointmentTypeForm">
     <div class="form-group">
@@ -36,8 +35,6 @@
         {{/each}}
       </select>
     </div>
-
-    
 
     <div class="form-group">
       <label for="appointmentNumber">Appointment</label>
@@ -119,9 +116,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="bookingModalLabel">Booking Summary</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span>&times;</span>
-          </button>
+
         </div>
         <div class="modal-body">
           <p><strong>Appointment Number:</strong> <span id="appointmentNumberModal"></span></p>
@@ -141,8 +136,8 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
-          <button type="button" class="btn btn-secondary" id="closeButton" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="confirmBookingBtn" type="submit">Confirm</button>
+          <button type="button" class="btn btn-secondary" id="closeButton" data-dismiss="modal" >Close</button>
         </div>
       </div>
     </div>

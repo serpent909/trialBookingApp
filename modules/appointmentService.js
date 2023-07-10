@@ -3,8 +3,7 @@ const moment = require('moment');
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
 async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
-
-  console.log(participantName)
+  console.log(psychologistName)
 
   startTime = date + ' ' + startTime;
 
@@ -54,6 +53,8 @@ async function createAppointment(db, participantName, researcherName, nurseName,
     end_time = moment(startTime).add(150, 'minutes')
     end_time = end_time.format('YYYY-MM-DD HH:mm')
   }
+
+  console.log(end_time)
 
   await db.run('BEGIN TRANSACTION');
 
@@ -113,13 +114,13 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
 
   // Determine the resource based on the resourceId
   if (resourceId === 1 || resourceId === 2) {
-    resource = 'researcher';
+    resource = 'Researcher';
   } else if (resourceId === 3) {
-    resource = 'nurse';
+    resource = 'Nurse';
   } else if ([7, 8, 9, 10, 11, 12, 13].includes(resourceId)) {
-    resource = 'psychologist';
+    resource = 'Psychologist';
   } else if (resourceId === 4 || resourceId === 5 || resourceId === 6) {
-    resource = 'room';
+    resource = 'Room';
   }
 
   // Calculate the new start and end times
