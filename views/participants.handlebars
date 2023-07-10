@@ -96,7 +96,6 @@
         {{/each}}
       </select>
 
-
       <label for="roomName">Room</label>
       <select id="roomName" name="roomName">
         <option value="">Select Room</option>
@@ -105,7 +104,7 @@
         {{/each}}
       </select>
 
-      <button type="submit">Search for</button>
+      <button type="submit">Search for appointment</button>
     </form>
   </div>
 
@@ -122,94 +121,88 @@
 
   <script>
 
-    function openModal() {
-      document.getElementById('booking-modal').style.display = 'block';
-      document.getElementById('overlay').style.display = 'block';
-    }
 
-    function closeModal() {
-      document.getElementById('booking-modal').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
-    }
+      function openModal() {
+        document.getElementById('booking-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+      }
 
-    // Close function for the existing booking modal
-    function closeExistingModal() {
-      document.getElementById('existing-booking-modal').style.display = 'none';
-      document.getElementById('overlay').style.display = 'none';
-    }
+      function closeModal() {
+        document.getElementById('booking-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+      }
 
-    function deleteAppointment() {
-      let appointmentIdElement = document.getElementById('existing-booking-id');
-      let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
+      // Close function for the existing booking modal
+      function closeExistingModal() {
+        document.getElementById('existing-booking-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+      }
 
-      fetch('/appointments/' + appointmentToDeleteId, {
-        method: 'DELETE',
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
+      function deleteAppointment() {
+        let appointmentIdElement = document.getElementById('existing-booking-id');
+        let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
+
+        fetch('/appointments/' + appointmentToDeleteId, {
+          method: 'DELETE',
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Success:', data);
+            closeExistingModal();
+            window.location.reload(); // reload the page to reflect changes
+          })
+          .catch((error) => {
+            alert('There was an error. Please try again.');
+          });
+      }
+
+      // Cell click event listener
+  
+      document.querySelectorAll('td').forEach((td) => {
+        td.addEventListener('click', function () {
+
+          const participantId = this.dataset.participantId;
+          const appointmentNumber = this.dataset.appointmentNumber;
+          const appointmentId = this.dataset.appointmentId;
+          const startTime = this.textContent.trim();
+
+          if (startTime) {
+            // Hide booking modal in case it's displayed
+            document.getElementById('booking-modal').style.display = 'none';
+            document.getElementById('existing-booking-details').textContent = 'Appointment at ' + startTime;
+            document.getElementById('existing-booking-id').textContent = 'Appointment ID: ' + appointmentId
+            document.getElementById('existing-booking-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+          } else {
+            // Hide existing booking modal in case it's displayed
+            document.getElementById('existing-booking-modal').style.display = 'none';
+            document.getElementById('participantNumber').value = participantId;
+            document.getElementById('appointmentNumber').value = appointmentNumber;
+            openModal();
           }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Success:', data);
-          closeExistingModal();
-          window.location.reload(); // reload the page to reflect changes
-        })
-        .catch((error) => {
-          alert('There was an error. Please try again.');
+
         });
-    }
-
-    // Cell click event listener
-    document.querySelectorAll('td').forEach((td) => {
-      td.addEventListener('click', function () {
-
-        const participantId = this.dataset.participantId;
-        const appointmentNumber = this.dataset.appointmentNumber;
-        const appointmentId = this.dataset.appointmentId;
-        const startTime = this.textContent.trim();
-
-        if (startTime) {
-          // Hide booking modal in case it's displayed
-          document.getElementById('booking-modal').style.display = 'none';
-          document.getElementById('existing-booking-details').textContent = 'Appointment at ' + startTime;
-          document.getElementById('existing-booking-id').textContent = 'Appointment ID: ' + appointmentId
-          document.getElementById('existing-booking-modal').style.display = 'block';
-          document.getElementById('overlay').style.display = 'block';
-        } else {
-          // Hide existing booking modal in case it's displayed
-          document.getElementById('existing-booking-modal').style.display = 'none';
-          document.getElementById('participantNumber').value = participantId;
-          document.getElementById('appointmentNumber').value = appointmentNumber;
-          openModal();
-        }
-
       });
-    });
 
-    document.getElementById('overlay').addEventListener('click', closeModal);
-    document.getElementById('overlay').addEventListener('click', closeExistingModal);
+      document.getElementById('overlay').addEventListener('click', closeModal);
+      document.getElementById('overlay').addEventListener('click', closeExistingModal);
+      const form = document.getElementById('appointmentForm');
+      const formattedStartInput = document.getElementById('start_time');
+      form.addEventListener('submit', function (event) {
 
+        event.preventDefault();
+        const formData = new FormData(this);
+        const searchParams = new URLSearchParams(formData); // Convert form data to URL search parameters
+        const queryString = searchParams.toString(); // Get the query string from the search parameters
 
-    const form = document.getElementById('appointmentForm');
-
-    const formattedStartInput = document.getElementById('start_time');
-
-
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-
-
-
-      const formData = new FormData(this);
-      const searchParams = new URLSearchParams(formData); // Convert form data to URL search parameters
-      const queryString = searchParams.toString(); // Get the query string from the search parameters
-
-      // Redirect to the second page with the query string
-      window.location.href = '/appointmentAvailability?' + queryString;
-    })
-
+        // Redirect to the second page with the query string
+        window.location.href = '/appointmentAvailability?' + queryString;
+      })
 
 
 

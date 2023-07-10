@@ -11,17 +11,15 @@
 //Delete appointment
 //For appointment three onwards:
 //-auto book option
+//check additional slots available when an illegal booking is made. How to stop illegal bookings from the participants table.
+//need a new booking type which is for blocking out time for any resource
+//Edit base availability (add more or remove some)
 
 //TODO: 
-//check additional slots available when an illegal booking is made. How to stop illegal bookings from the participants table.
+//nurse1 and nurse2
+//What happens with autobook if there is a week missing for the psychologist?
 //shift all appointments x weeks option
-//need a new booking type which is for blocking out time for any resource
-
-//Edit base availability (add more or remove some)
-//room3 needs its own type
-
-//Add logic to prevent double booking of resources/booking in unavailable times
-//Something to change the future availability from x date but would also need to check impact on existing appointments
+//Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
 
 const moment = require("moment");
@@ -144,25 +142,106 @@ app.get("/schedules", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+    let { startDate, endDate, resourceName } = req.query;
+
+
+
     // Pagination
     let page = parseInt(req.query.page) || 1;
     const limit = 100;
     const offset = (page - 1) * limit;
 
+    // Fetch all the resources
+    const resources = await db.all(`SELECT * FROM bookable_things`);
+
     // Fetch the schedules for the current page with LIMIT and OFFSET
-    const schedules = await db.all(`SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id LIMIT ${limit} OFFSET ${offset}`);
+    const schedules = await db.all(`SELECT schedules.id AS scheduleId, schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id`);
+
+
+    const filteredSchedules = schedules.filter(schedule => {
+
+      const scheduleStartDate = moment(schedule.start_time.split(' ')[0]).format('YYYY-MM-DD');
+      const scheduleEndDate = moment(schedule.end_time.split(' ')[0]).format('YYYY-MM-DD');
+      const scheduleResourceName = schedule.name;
+
+      const isStartDateValid = startDate ? moment(startDate).isSameOrBefore(scheduleStartDate) : true;
+      const isEndDateValid = endDate ? moment(endDate).isSameOrAfter(scheduleEndDate) : true;
+      const isResourceNameValid = resourceName ? scheduleResourceName === resourceName : true;
+
+      return isStartDateValid && isEndDateValid && isResourceNameValid;
+    });
+
+  
 
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
     const totalSchedules = countResult.count;
     const totalPages = Math.ceil(totalSchedules / limit);
 
-    res.render("schedules", { title: "Booking App", schedules, page, totalPages });
+    res.render("schedules", { title: "Booking App", page, totalPages, resources, filteredSchedules });
   } catch (err) {
     console.error('Failed to retrieve schedules:', err);
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve schedules" });
   }
 });
+
+app.delete("/schedules", async (req, res) => {
+
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const schedulesToDelete = req.body;
+
+    for (const schedule of schedulesToDelete) {
+      const scheduleId = parseInt(schedule);
+
+      // Get the schedule details
+      const scheduleRow = await db.get(
+        `SELECT * FROM schedules WHERE id = ?`,
+        scheduleId
+      );
+
+      if (!scheduleRow) {
+        // Schedule not found, return an error response
+        return res.status(404).json({
+          error: `Schedule with ID ${scheduleId} not found.`,
+        });
+      }
+
+      const date = scheduleRow.start_time.split(" ")[0];
+
+      // Check if there are any appointments for the same date
+      const hasAppointments = await db.get(
+        `SELECT COUNT(*) AS count FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`,
+        scheduleRow.bookable_thing_id,
+        date
+      );
+
+      if (hasAppointments.count > 0) {
+        // There are appointments for this schedule date, so skip deletion and return an error response
+        return res.status(400).json({
+          error: `Cannot delete schedule with ID ${scheduleId}. There are existing appointments for the same date.`,
+        });
+      }
+
+      // Delete the schedule
+      await db.run(`DELETE FROM schedules WHERE id = ?`, scheduleId);
+    }
+
+
+    // await db.run(`DELETE FROM schedules WHERE id = ?`, scheduleId);
+
+    res.json({message: "Successfully deleted schedules"})
+  } catch (err) {
+    console.error('Failed to delete schedules:', err);
+    const errorMessage = err.message || "Failed to delete schedules";
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
 
 
 //get the remaining appointment availability
@@ -173,13 +252,12 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
+ 
     // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName, participantNumber } = req.query;
+ 
 
-
-  
-
-    //populate dropdown options
+    //Populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
       roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
@@ -192,9 +270,14 @@ app.get("/appointmentAvailability", async (req, res) => {
       "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
     );
 
+    
+
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
+
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
+
+    console.log(formattedTimeSlotsWithAppointmentNumberLogic)
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -215,7 +298,8 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
-  console.log('req.body', req.body)
+
+
 
   try {
     const db = await sqlite.open({
@@ -224,7 +308,7 @@ app.post("/appointments", async (req, res) => {
     });
 
     let {
-      startTime, 
+      startTime,
       researcherName,
       psychologistName,
       roomName,
@@ -269,7 +353,6 @@ app.post("/appointments", async (req, res) => {
       );
     }
 
-    
     res.json({ message: "Appointment created successfully" });
   } catch (err) {
     console.error('Failed to create appointment:', err);
@@ -300,8 +383,8 @@ app.get("/participants", async (req, res) => {
       appointments: Array(8).fill(null)
     }));
 
-    participantBookings.forEach(async (booking) => {
-   
+    const bookingPromises = participantBookings.map(async booking => {
+
       let participantIndex = arrangedData.findIndex(participant => participant.participantId === booking.participant_id);
       let appointmentIndex = booking.appointment_number - 1;
 
@@ -319,15 +402,16 @@ app.get("/participants", async (req, res) => {
           appointmentId: booking.id,
           psychologist: psycholoigst,
           researcher: researcher,
-       
-        }
 
-        console.log(arrangedData[participantIndex].appointments[appointmentIndex])
+        }
 
       } else {
         console.log(`Invalid participant id: ${booking.participant_id}`);
       }
     });
+
+    await Promise.all(bookingPromises);
+
 
     res.render("participants", { title: "Participants", participantBookings, arrangedData, dropDownOptions });
 
@@ -337,6 +421,7 @@ app.get("/participants", async (req, res) => {
   }
 
 });
+
 
 app.delete("/appointments/:id", async (req, res) => {
   try {

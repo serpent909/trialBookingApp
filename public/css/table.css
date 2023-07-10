@@ -11,6 +11,7 @@ table {
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
 }
 
 th, td {
@@ -58,6 +59,17 @@ td:last-child {
 .button {
   display: inline-block;
   background-color: #4287f5;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+
+}
+
+.button2 {
+  display: inline-block;
   color: #fff;
   padding: 8px 16px;
   border-radius: 4px;
@@ -130,4 +142,10 @@ td:last-child {
 
 .booked {
   background-color: #f5bebe;  /* Red color for booked slots */
+}
+
+.row-checkbox, #selectAllCheckbox {
+  display: block;
+  margin: auto;
+  transform: scale(1.5); /* Adjust the scale value as needed for desired size */
 }

@@ -96,8 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
             throw new Error(data.error);
           });
         }
-      })
-      .then(data => {
+      }).then(data => {
         console.log('Success:', data);
         closeBookingModal();
   
@@ -106,11 +105,10 @@ document.addEventListener('DOMContentLoaded', function () {
           duration: 3000,
           gravity: "top",
           position: 'center',
-          backgroundColor: "#00b09b",
+          backgroundColor: "#4caf50",
           newWindow: true
         }).showToast();
-      })
-      .catch(error => {
+      }).catch(error => {
         console.error('Error:', error);
   
         Toastify({
@@ -125,9 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Close button click event
-  closeBtn1.addEventListener('click', function () {
-    closeBookingModal();
-  });
+
 
   closeBtn2.addEventListener('click', function () {
     closeBookingModal();
