@@ -4,7 +4,7 @@ const sqlite = require('sqlite');
 const sqlite3 = require('sqlite3');
 
 const DB_PATH = path.join(__dirname, '..', 'project-database.db');
-const SQL_SCRIPT_PATH = path.join(__dirname, '..', 'SQL', 'project-database-init-script.sql');
+const SQL_SCRIPT_PATH = path.join(__dirname, '..', 'sql', 'project-database-init-script.sql');
 const AVAILABILITY_DIR = path.join(__dirname, '..', 'config');
 
 const sqlScript = fs.readFileSync(SQL_SCRIPT_PATH, 'utf8');
