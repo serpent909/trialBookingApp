@@ -29,7 +29,7 @@ const sqlite3 = require("sqlite3");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const hostname = "pam-trial-test.onrender.com/"; // Replace "example.com" with your actual domain or IP address
+const hostname = "pam-trial-test.onrender.com"; // Replace "example.com" with your actual domain or IP address
 app.set("trust proxy", true);
 
 const handlebars = require("express-handlebars");
