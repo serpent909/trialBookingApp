@@ -29,7 +29,7 @@ const sqlite3 = require("sqlite3");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const hostname = "pam-trial-test.onrender.com"; // Replace "example.com" with your actual domain or IP address
+const hostname = "0.0.0.0"; // Replace "example.com" with your actual domain or IP address
 app.set("trust proxy", true);
 
 const handlebars = require("express-handlebars");
@@ -449,5 +449,5 @@ app.delete("/appointments/:id", async (req, res) => {
 
 // Start the server running.
 app.listen(port, hostname, function () {
-  console.log(`App listening on ${hostname}:${port}!`);
+  console.log(`App listening on ${hostname}!`);
 });
