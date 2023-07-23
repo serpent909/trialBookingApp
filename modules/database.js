@@ -73,24 +73,24 @@ async function getResourcType(db, resourceType) {
 
 async function populateSchedules(db) {
   const resources = [
-    { name: 'researcher1', type: 'Researcher' },
-    { name: 'researcher2', type: 'Researcher' },
-    { name: 'nurse', type: 'Nurse' },
-    { name: 'room1', type: 'Room' },
-    { name: 'room2', type: 'Room' },
-    { name: 'room3', type: 'Room' },
-    { name: 'psychologist1', type: 'Psychologist' },
-    { name: 'psychologist2', type: 'Psychologist' },
-    { name: 'psychologist3', type: 'Psychologist' },
-    { name: 'psychologist4', type: 'Psychologist' },
-    { name: 'psychologist5', type: 'Psychologist' },
-    { name: 'psychologist6', type: 'Psychologist' },
-    { name: 'psychologist7', type: 'Psychologist' }
+    { name: 'Researcher1', type: 'Researcher' },
+    { name: 'Researcher2', type: 'Researcher' },
+    { name: 'Nurse', type: 'Nurse' },
+    { name: 'Room1', type: 'Room' },
+    { name: 'Room2', type: 'Room' },
+    { name: 'Room3', type: 'Room' },
+    { name: 'Psychologist1', type: 'Psychologist' },
+    { name: 'Psychologist2', type: 'Psychologist' },
+    { name: 'Psychologist3', type: 'Psychologist' },
+    { name: 'Psychologist4', type: 'Psychologist' },
+    { name: 'Psychologist5', type: 'Psychologist' },
+    { name: 'Psychologist6', type: 'Psychologist' },
+    { name: 'Psychologist7', type: 'Psychologist' }
   ];
 
   for (const resource of resources) {
 
-    const availabilityJson = readAvailabilityJson(resource.name);
+    const availabilityJson = readAvailabilityJson(resource.name.toLowerCase());
     const resourceId = await getResourceId(db, resource.name);
     const resourceName = await getResourceName(db, resource.name);
     const resourceType = await getResourcType(db, resource.type);
