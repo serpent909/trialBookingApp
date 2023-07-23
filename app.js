@@ -20,6 +20,7 @@
 //What happens with autobook if there is a week missing for the psychologist?
 //shift all appointments x weeks option
 //Show appointment details in modal: start/end times for each resource and participant
+//Stop the base schedules from being populated every time the server starts
 //Authentication?
 
 const moment = require("moment");
@@ -38,7 +39,7 @@ const DB_PATH = path.join(__dirname, 'project-database.db');
 
 const availableSlotscalculationService = require('./modules/availableSlotsCalculationService');
 const appointmentService = require('./modules/appointmentService.js');
-const e = require("express");
+
 
 // Define the formatTime helper
 app.engine(

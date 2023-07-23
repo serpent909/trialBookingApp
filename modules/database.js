@@ -122,7 +122,13 @@ async function initDatabase() {
     await db.exec(sqlScript);
     console.log('SQL script executed successfully');
 
-    await populateSchedules(db);
+    const resourceScheduleData = await db.all('SELECT * FROM schedules');
+
+    console.log('resourceScheduleData', resourceScheduleData);
+    if (resourceScheduleData.length === 0) {
+      await populateSchedules(db);
+
+    }
 
     return db;
   } catch (err) {
