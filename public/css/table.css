@@ -24,6 +24,7 @@ th {
   background-color: #4287f5;
   color: #fff;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 tr:nth-child(even) {
@@ -150,3 +151,4 @@ td:last-child {
   margin: auto;
   transform: scale(1.5); /* Adjust the scale value as needed for desired size */
 }
+

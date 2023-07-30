@@ -22,3 +22,117 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
   }
+
+  @media (max-width: 1200px) {
+
+    #addSchedulesModal h1 {
+      font-size: 2em;
+    }
+
+    #addSchedulesModal h2 {
+      font-size: 1.5em;
+    }
+
+    #addSchedulesModal p {
+      font-size: 1.17em;
+    }
+
+    #addSchedulesModal .button {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field input {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field label {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field select {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field textarea {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field input {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field label {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field select {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field textarea {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field input {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field label {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field select {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field textarea {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field input {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field label {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field select {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field textarea {
+      font-size: 1em;
+    }
+
+    #addSchedulesModal .input-field .input-field .input-field .input-field .input-field {
+      font-size: 1em;
+    }
+
+
+
+
+  }
+
+
+
+
+
+
+

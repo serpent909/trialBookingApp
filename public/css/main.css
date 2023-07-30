@@ -6,6 +6,8 @@ body {
   margin: 0;
   padding: 0;
   margin-bottom: 100px;
+  width: 100%
+
 }
 
 .main-container {
@@ -29,10 +31,11 @@ h2 {
 .nav-bar {
   background-color: #4287f5;
 
+
 }
 
 .nav-content {
-  max-width: 100%;
+
   margin: 0 auto;
   font-size: 1.75em;
 }
@@ -67,12 +70,45 @@ nav a:hover {
 
 /* Media query for mobile devices with width up to 600px */
 @media (max-width: 1200px) {
-  form {
-    font-size: 20px !important; /* Adjust the font size for mobile */
+  .main-container {
+    max-width: 90%;
   }
-  label,
-  input,
-  textarea {
-    font-size: 20px !important;  /* Adjust the font size for mobile */
+
+  .nav-content {
+    font-size: 1.25em;
   }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  .button {
+    font-size: 1em;
+  }
+
+  .button2 {
+    font-size: 1em;
+  }
+
+  .pagination-link {
+    font-size: 1em;
+  }
+
+  .table-header {
+    font-size: 1em;
+  }
+
+  .table-row {
+    font-size: 1em;
+  } 
+
+  .table-row td {
+    padding: 5px;
+  }
+
 }
+
