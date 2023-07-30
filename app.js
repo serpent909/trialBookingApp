@@ -39,6 +39,7 @@ const DB_PATH = path.join(__dirname, 'project-database.db');
 
 const availableSlotscalculationService = require('./modules/availableSlotsCalculationService');
 const appointmentService = require('./modules/appointmentService.js');
+const schedulesService = require('./modules/schedulesService.js');
 
 
 // Define the formatTime helper
@@ -48,6 +49,10 @@ app.engine(
     defaultLayout: "main",
     helpers: {
       formatTime: function (dateTime) {
+
+        if (!dateTime) {
+          return '';
+        }
 
         const separator = dateTime.includes('T') ? 'T' : ' ';
         const [datePart, timePart] = dateTime.split(separator);
@@ -148,8 +153,6 @@ app.get("/schedules", async (req, res) => {
 
     let { startDate, endDate, resourceName } = req.query;
 
-
-
     // Pagination
     let page = parseInt(req.query.page) || 1;
     const limit = 100;
@@ -175,7 +178,7 @@ app.get("/schedules", async (req, res) => {
       return isStartDateValid && isEndDateValid && isResourceNameValid;
     });
 
-  
+
 
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
@@ -188,6 +191,30 @@ app.get("/schedules", async (req, res) => {
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve schedules" });
   }
 });
+
+app.post("/schedules", async (req, res) => {
+
+
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const { startTime, endTime, startDate, endDate, resourceName, day } = req.body;
+
+
+    const result = await schedulesService.addSchedules(db, startTime, endTime, startDate, endDate, day, resourceName);
+
+
+    res.json({ message: "Successfully added schedules" })
+  } catch (err) {
+    console.error('Failed to add schedules:', err);
+    const errorMessage = err.message || err;
+    return res.status(500).json({ error: errorMessage });
+  }
+});
+
 
 app.delete("/schedules", async (req, res) => {
 
@@ -238,15 +265,13 @@ app.delete("/schedules", async (req, res) => {
 
     // await db.run(`DELETE FROM schedules WHERE id = ?`, scheduleId);
 
-    res.json({message: "Successfully deleted schedules"})
+    res.json({ message: "Successfully deleted schedules" })
   } catch (err) {
     console.error('Failed to delete schedules:', err);
     const errorMessage = err.message || "Failed to delete schedules";
     res.status(500).json({ error: errorMessage });
   }
 });
-
-
 
 //get the remaining appointment availability
 app.get("/appointmentAvailability", async (req, res) => {
@@ -256,10 +281,10 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
- 
+
     // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName, participantNumber } = req.query;
- 
+
 
     //Populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
@@ -274,14 +299,12 @@ app.get("/appointmentAvailability", async (req, res) => {
       "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
     );
 
-    
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
-    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
 
+    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
 
-    console.log(formattedTimeSlotsWithAppointmentNumberLogic)
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -299,11 +322,8 @@ app.get("/appointmentAvailability", async (req, res) => {
   }
 });
 
-
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
-
-
 
   try {
     const db = await sqlite.open({
@@ -343,7 +363,7 @@ app.post("/appointments", async (req, res) => {
     }
 
     if (multiple_appointments == 'false') {
-      //TODO: Tidy up parseInt
+
       await appointmentService.createAppointment(
         db,
         participantNumber,

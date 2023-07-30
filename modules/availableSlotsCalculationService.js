@@ -518,8 +518,6 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
   latestStartTime = moment(latestStartTime).format('YYYY-MM-DDTHH:mm');
   let currentTime = moment(earliestStartTime).format('YYYY-MM-DDTHH:mm');
 
-  console.log("earliestStartTime", earliestStartTime, "latestStartTime", latestStartTime);
-
 
   while (moment(currentTime).isSameOrBefore(latestStartTime)) {
   

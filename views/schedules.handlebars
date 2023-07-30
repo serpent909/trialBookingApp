@@ -12,19 +12,44 @@
 
 <body>
 
-    <!-- The booking form, hidden inside a modal -->
+    <!-- The schedules form, hidden inside a modal -->
     <div id="addSchedulesModal" style="display: none;">
-        <form id="appointmentForm">
+        <form id="scheduleForm">
             <label for="participantNumber">Participant ID:</label>
 
+            <label for="schStartDate">Start Date</label>
+            <input type="date" id="schStartDate" name="schStartDate">
 
-            <label for="startDate">Start Date</label>
-            <input type="date" id="startDate" name="startDate">
+            <label for="schEndDate">End Date</label>
+            <input type="date" id="schEndDate" name="schEndDate">
 
-            <label for="endDate">End Date</label>
-            <input type="date" id="endDate" name="endDate">
+            <label for="schDay">Day</label>
+            <select id="schDay" name="schDay">
+                <option value="">Select Day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesay</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
 
-            <button type="submit">Add Availability</button>
+            <label for="schStartTime">Start Time</label>
+            <input type="time" id="schStartTime" name="schStartTime">
+
+            <label for="schEndTime">End Time</label>
+            <input type="time" id="schEndTime" name="schEndTime">
+
+            <label for="schResourceName">Resource</label>
+            <select id="schResourceName" name="schResourceName">
+                <option value="">Select Resource</option>
+                {{#each resources}}
+                <option value="{{this.name}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+
+            <button id="addAvailability" type="submit">Add</button>
         </form>
     </div>
 
@@ -61,11 +86,11 @@
         </div>
 
         <div class="form-group button2">
-            <button id="addSchedulesButton" type="button"><strong>Add Schedule</strong></button>
+            <button id="addSchedulesButton" type="button"><strong>Add</strong></button>
         </div>
 
         <div class="form-group button2">
-            <button id="deleteSelectedButton" type="button" disabled="true"><strong>Delete Selected</strong></button>
+            <button id="deleteSelectedButton" type="button" disabled="true"><strong>Delete</strong></button>
         </div>
     </form>
 

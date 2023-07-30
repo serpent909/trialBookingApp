@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     form.addEventListener("submit", function (event) {
+  
         event.preventDefault();
         const formData = new FormData(form);
         const searchParams = new URLSearchParams();
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listener for row checkboxes
     for (let i = 0; i < rowCheckboxes.length; i++) {
-        console.log("hihihihih")
+
         rowCheckboxes[i].addEventListener("change", function () {
             const isChecked = rowCheckboxes[i].checked;
             const rowId = rowCheckboxes[i].closest("tr").getAttribute("data-id");
