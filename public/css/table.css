@@ -152,3 +152,7 @@ td:last-child {
   transform: scale(1.5); /* Adjust the scale value as needed for desired size */
 }
 
+.not-clickable {
+  cursor: default;
+}
+

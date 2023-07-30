@@ -42,7 +42,8 @@
         <td>{{participantId}}</td>
         {{#each appointments}}
         <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
-          data-appointment-id="{{this.appointmentId}}" class="{{#if this.startTime}}booked{{else}}open{{/if}}">
+          data-appointment-id="{{this.appointmentId}}" class="{{#if this.startTime}}booked{{else}}open{{/if}}"
+          class="testing">
           {{#if this.startTime}}
           {{formatTime this.startTime}}
           {{/if}}
@@ -122,48 +123,49 @@
   <script>
 
 
-      function openModal() {
-        document.getElementById('booking-modal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-      }
+    function openModal() {
+      document.getElementById('booking-modal').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+    }
 
-      function closeModal() {
-        document.getElementById('booking-modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-      }
+    function closeModal() {
+      document.getElementById('booking-modal').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
 
-      // Close function for the existing booking modal
-      function closeExistingModal() {
-        document.getElementById('existing-booking-modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-      }
+    // Close function for the existing booking modal
+    function closeExistingModal() {
+      document.getElementById('existing-booking-modal').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
 
-      function deleteAppointment() {
-        let appointmentIdElement = document.getElementById('existing-booking-id');
-        let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
+    function deleteAppointment() {
+      let appointmentIdElement = document.getElementById('existing-booking-id');
+      let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
 
-        fetch('/appointments/' + appointmentToDeleteId, {
-          method: 'DELETE',
+      fetch('/appointments/' + appointmentToDeleteId, {
+        method: 'DELETE',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
         })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
-            console.log('Success:', data);
-            closeExistingModal();
-            window.location.reload(); // reload the page to reflect changes
-          })
-          .catch((error) => {
-            alert('There was an error. Please try again.');
-          });
-      }
+        .then(data => {
+          console.log('Success:', data);
+          closeExistingModal();
+          window.location.reload(); // reload the page to reflect changes
+        })
+        .catch((error) => {
+          alert('There was an error. Please try again.');
+        });
+    }
 
-      // Cell click event listener
-  
-      document.querySelectorAll('td').forEach((td) => {
+    // Cell click event listener
+
+    document.querySelectorAll('td').forEach((td, index) => {
+      if ((index + 1) % 9 !== 1) {
         td.addEventListener('click', function () {
 
           const participantId = this.dataset.participantId;
@@ -187,22 +189,25 @@
           }
 
         });
-      });
+      } else {
+        td.classList.add('not-clickable')
+      }
+    });
 
-      document.getElementById('overlay').addEventListener('click', closeModal);
-      document.getElementById('overlay').addEventListener('click', closeExistingModal);
-      const form = document.getElementById('appointmentForm');
-      const formattedStartInput = document.getElementById('start_time');
-      form.addEventListener('submit', function (event) {
+    document.getElementById('overlay').addEventListener('click', closeModal);
+    document.getElementById('overlay').addEventListener('click', closeExistingModal);
+    const form = document.getElementById('appointmentForm');
+    const formattedStartInput = document.getElementById('start_time');
+    form.addEventListener('submit', function (event) {
 
-        event.preventDefault();
-        const formData = new FormData(this);
-        const searchParams = new URLSearchParams(formData); // Convert form data to URL search parameters
-        const queryString = searchParams.toString(); // Get the query string from the search parameters
+      event.preventDefault();
+      const formData = new FormData(this);
+      const searchParams = new URLSearchParams(formData); // Convert form data to URL search parameters
+      const queryString = searchParams.toString(); // Get the query string from the search parameters
 
-        // Redirect to the second page with the query string
-        window.location.href = '/appointmentAvailability?' + queryString;
-      })
+      // Redirect to the second page with the query string
+      window.location.href = '/appointmentAvailability?' + queryString;
+    })
 
 
 
