@@ -2,6 +2,7 @@
 
 body {
   font-family: Arial, sans-serif;
+  font-size: 1.25em;
   margin: 0;
   padding: 0;
   margin-bottom: 100px;
@@ -27,11 +28,13 @@ h2 {
 /* Navigation Bar Styling */
 .nav-bar {
   background-color: #4287f5;
+
 }
 
 .nav-content {
-  max-width: 70%;
+  max-width: 100%;
   margin: 0 auto;
+  font-size: 1.75em;
 }
 
 nav ul {
@@ -55,4 +58,21 @@ nav a {
 
 nav a:hover {
   background-color: #0d5ab6;
+}
+
+/* button {
+  font-size: 1.25em;
+} */
+
+
+/* Media query for mobile devices with width up to 600px */
+@media (max-width: 600px) {
+  form {
+    font-size: 20px !important; /* Adjust the font size for mobile */
+  }
+  label,
+  input,
+  textarea {
+    font-size: 20px !important;  /* Adjust the font size for mobile */
+  }
 }
