@@ -14,13 +14,14 @@
 //check additional slots available when an illegal booking is made. How to stop illegal bookings from the participants table.
 //need a new booking type which is for blocking out time for any resource
 //Edit base availability (add more or remove some)
+//Stop the base schedules from being populated every time the server starts
+//Favicon
 
 //TODO: 
 //nurse1 and nurse2
-//What happens with autobook if there is a week missing for the psychologist?
+//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
 //shift all appointments x weeks option
 //Show appointment details in modal: start/end times for each resource and participant
-//Stop the base schedules from being populated every time the server starts
 //Authentication?
 
 const moment = require("moment");
@@ -30,7 +31,7 @@ const sqlite3 = require("sqlite3");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const hostname = "0.0.0.0"; // Replace "example.com" with your actual domain or IP address
+const hostname = "0.0.0.0"; 
 app.set("trust proxy", true);
 
 const handlebars = require("express-handlebars");
@@ -40,6 +41,7 @@ const DB_PATH = path.join(__dirname, 'project-database.db');
 const availableSlotscalculationService = require('./modules/availableSlotsCalculationService');
 const appointmentService = require('./modules/appointmentService.js');
 const schedulesService = require('./modules/schedulesService.js');
+const { isResourceAvailable } = require('./modules/appointmentService');
 
 
 // Define the formatTime helper
@@ -344,6 +346,7 @@ app.post("/appointments", async (req, res) => {
     } = req.body;
 
     if (multiple_appointments == 'true') {
+
       for (let i = parseInt(appointmentNumber); i <= 8; i++) {
         await appointmentService.createAppointment(
           db,

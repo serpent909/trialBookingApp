@@ -131,6 +131,13 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };
 }
 
+async function isResourceAvailable(db, resourceId, appointmentType, startTime) {
+
+  //Implement logic to check if the resource is available
+  const endTime = calculateTime(resourceId, appointmentType, startTime)
+
+}
+
 module.exports = {
   createAppointment,
   calculateTime
