@@ -7,16 +7,16 @@ async function createAppointment(db, participantName, researcherName, nurseName,
   startTime = date + ' ' + startTime;
 
   const researcherRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [researcherName]);
-  const researcher_id = researcherRow? researcherRow.id : null;
-  
+  const researcher_id = researcherRow ? researcherRow.id : null;
+
   const nurseRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [nurseName]);
-  const nurse_id = nurseRow? nurseRow.id : null;
+  const nurse_id = nurseRow ? nurseRow.id : null;
 
   const psychologistRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [psychologistName]);
-  const psychologist_id = psychologistRow? psychologistRow.id : null;
+  const psychologist_id = psychologistRow ? psychologistRow.id : null;
 
   const roomRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [roomName]);
-  const room_id = roomRow? roomRow.id : null;
+  const room_id = roomRow ? roomRow.id : null;
 
   let appointment_number = parseInt(appointmentName)
   let participant_id = participantName
@@ -53,9 +53,9 @@ async function createAppointment(db, participantName, researcherName, nurseName,
     end_time = end_time.format('YYYY-MM-DD HH:mm')
   }
 
-  console.log(end_time)
 
-  await db.run('BEGIN TRANSACTION');
+
+
 
   try {
     // First, insert into the appointments table
@@ -77,7 +77,7 @@ async function createAppointment(db, participantName, researcherName, nurseName,
       }
 
       let bookableThingRow = await db.get('SELECT name FROM bookable_things WHERE id = ?', [bookable_things[i]]);
-   
+
 
       let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], startTime, end_time);
 
@@ -87,18 +87,14 @@ async function createAppointment(db, participantName, researcherName, nurseName,
       );
     }
 
-    await db.run('COMMIT');
+
   } catch (error) {
-    // If any operation fails, rollback the transaction
-    await db.run('ROLLBACK');
     throw error; // Rethrow the error to be handled by the caller
   }
 }
 
 // Implementation code for calculating start and end times
 function calculateTime(resource, appointmentType, originalStartTime) {
-
-  resource = resource.toLowerCase();
 
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
@@ -131,14 +127,27 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };
 }
 
-async function isResourceAvailable(db, resourceId, appointmentType, startTime) {
+async function isResourceAvailable(db, resourceName, appointmentNumber, startTime) {
+  startTime = startTime.split(' ')[1];
+  let appointmentType;
 
   //Implement logic to check if the resource is available
-  const endTime = calculateTime(resourceId, appointmentType, startTime)
+
+  if (appointmentNumber == 1 || appointmentNumber == 2) {
+    appointmentType = appointmentNumber;
+  } else {
+    appointmentType = 3;
+  }
+
+  const resourceType = resourceName.slice(0, -1).toLowerCase();
+  const endTime = calculateTime(resourceType, appointmentType, startTime)
+
+  return true //implement actual logic to return true if there is no appointment for this resource at the same time AND the base schedule includes the slot
 
 }
 
 module.exports = {
   createAppointment,
-  calculateTime
+  calculateTime,
+  isResourceAvailable
 };

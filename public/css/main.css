@@ -17,7 +17,7 @@ body {
 
 h1 {
   font-family: 'Arial', sans-serif;
-  font-size: 2.5em;
+  font-size: 2.25em;
   color: #333;
 }
 
@@ -29,15 +29,15 @@ h2 {
 
 /* Navigation Bar Styling */
 .nav-bar {
-  background-color: #4287f5;
+  background-color: #4C25E1;
 
 
 }
 
 .nav-content {
-
+  max-width: 70%;
   margin: 0 auto;
-  font-size: 1.75em;
+  font-size: 1.25em;
 }
 
 nav ul {
