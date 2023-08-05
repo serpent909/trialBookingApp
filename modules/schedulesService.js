@@ -86,7 +86,6 @@ const checkForExistingSchedules = async (db, dates, resourceId) => {
     return existingSchedules;
 }
 
-
 const getDayDates = (startDate, endDate, day) => {
     const result = [];
     const start = moment(startDate);

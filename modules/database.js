@@ -124,7 +124,7 @@ async function initDatabase() {
 
     const resourceScheduleData = await db.all('SELECT * FROM schedules');
 
-    if (resourceScheduleData.length === 0) {
+    if (Object.keys(resourceScheduleData).length === 0) {
       await populateSchedules(db);
 
     }

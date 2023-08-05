@@ -45,7 +45,7 @@ const schedulesService = require('./modules/schedulesService.js');
 const { isResourceAvailable } = require('./modules/appointmentService');
 
 
-// Define the formatTime helper
+// Handlebnars helper functions
 app.engine(
   "handlebars",
   handlebars.engine({
@@ -109,9 +109,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 require("./modules/database.js");
 
-//Global constnats
-app.locals.siteName = "Booking App";
+//Global constants
+app.locals.siteName = "PAM Trial Booking App";
 
+
+//TODO: implement logic to look these up from the database
 const psychologistIds = [
   { id: 7, name: "Psychologist1" },
   { id: 8, name: "Psychologist2" },
@@ -265,9 +267,6 @@ app.delete("/schedules", async (req, res) => {
       await db.run(`DELETE FROM schedules WHERE id = ?`, scheduleId);
     }
 
-
-    // await db.run(`DELETE FROM schedules WHERE id = ?`, scheduleId);
-
     res.json({ message: "Successfully deleted schedules" })
   } catch (err) {
     console.error('Failed to delete schedules:', err);
@@ -284,10 +283,7 @@ app.get("/appointmentAvailability", async (req, res) => {
       driver: sqlite3.Database,
     });
 
-
-    // Get the query parameters
     const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName, participantNumber } = req.query;
-
 
     //Populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
@@ -427,7 +423,6 @@ app.post("/appointments", async (req, res) => {
 });
 
 
-
 app.get("/participants", async (req, res) => {
   try {
     const db = await sqlite.open({
@@ -480,7 +475,6 @@ app.get("/participants", async (req, res) => {
 
 
     res.render("participants", { title: "Participants", participantBookings, arrangedData, dropDownOptions });
-
   } catch (err) {
     console.error('Failed to retrieve participants:', err);
     res.status(500).render("error", { title: "Error", message: "Failed to retrieve participants" });
@@ -508,7 +502,6 @@ app.delete("/appointments/:id", async (req, res) => {
     res.status(500).send("Failed to delete appointment");
   }
 });
-
 
 
 // Start the server running.
