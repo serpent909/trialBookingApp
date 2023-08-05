@@ -53,10 +53,6 @@ async function createAppointment(db, participantName, researcherName, nurseName,
     end_time = end_time.format('YYYY-MM-DD HH:mm')
   }
 
-
-
-
-
   try {
     // First, insert into the appointments table
     let result = await db.run(
@@ -129,15 +125,12 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
 }
 
 async function isResourceAvailable(db, resourceName, appointmentNumber, startTime) {
-  
 
   let appointmentType;
 
-  //Implement logic to check if the resource is available
-
   if (appointmentNumber == 1 || appointmentNumber == 2) {
     appointmentType = appointmentNumber;
-  } else if (appointmentNumber == 3 || appointmentNumber == 4 || appointmentNumber == 5 || appointmentNumber == 6 || appointmentNumber == 7 || appointmentNumber == 8){
+  } else if (appointmentNumber == 3 || appointmentNumber == 4 || appointmentNumber == 5 || appointmentNumber == 6 || appointmentNumber == 7 || appointmentNumber == 8) {
     appointmentType = 3;
   } else {
     throw new Error('Invalid appointment number');
@@ -154,32 +147,36 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
   const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
   const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
 
-  if (!sameDaySchedule) {
+  if (Object.keys(sameDaySchedule).length === 0) {
     throw new Error(`No availability schedule found for ${resourceName} on ${resourceDate}`);
   }
 
-  const slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
+  if (Object.keys(sameDayAppointments).length === 0) {
+    const slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
+  } else {
+    //TODO: implement logic to check if the required appointment time is withint he start and end times of the resource schedule and also outside existing appointments
+
+  }
 
   if (!slotCalculationResult) {
     throw new Error(`The ${resourceName} is not available at ${resourceStartTime} on ${resourceDate}`);
   }
-  
 
-  return slotCalculationResult 
+  return slotCalculationResult
 
 }
 
 function isSlotAvailable(resourceStartTime, resourceEndTime, scheduleStartTime, scheduleEndTime) {
 
   //Remove date component from the time strings
-const resourceDateObject = new Date(resourceStartTime);
-const scheduleDateObject = new Date(scheduleStartTime);
+  const resourceStartDateTime = new Date(resourceStartTime);
+  const resourceEndDateTime = new Date(resourceEndTime);
 
-const scheduleStartDateObject = new Date(scheduleStartTime);
-const scheduleEndDateObject = new Date(scheduleEndTime);
+  const scheduleStartDateTime = new Date(scheduleStartTime);
+  const scheduleEndDateTime = new Date(scheduleEndTime);
 
   // Implement logic to check if the slot is available
-  if (resourceStartTime < scheduleStartTime || resourceEndTime > scheduleEndTime) {
+  if (resourceStartDateTime < scheduleStartDateTime || resourceEndDateTime > scheduleEndDateTime) {
     return false;
   }
 

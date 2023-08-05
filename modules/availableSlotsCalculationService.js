@@ -1,7 +1,6 @@
 const moment = require('moment');
 const fs = require("fs");
 const appointmentService = require('./appointmentService.js');
-const e = require('express');
 const appointmentRules = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
 function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, researcherName, psychologistName, roomName) {
@@ -26,8 +25,6 @@ function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, r
   } else if (appointmentNumber == 8) {
     appointment_type_id = 3;
   }
-
-
 
   if (startDate && endDate) {
     availableDaySlots = availableDaySlots.filter((slot) => {
@@ -138,7 +135,6 @@ function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, r
   if (psychologistName) {
     availableDaySlots = availableDaySlots.filter((slot) => {
 
-
       const slotName = slot.name;
       const slotType = slot.type;
       if (slotType === "Psychologist") {
@@ -148,9 +144,6 @@ function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, r
       }
     });
   }
-
-
-
 
   if (roomName) {
     availableDaySlots = availableDaySlots.filter((slot) => {
@@ -220,8 +213,6 @@ function calculateAvailableSlots(availabilityType, availabilityName, availabilit
     };
     availableSlots.push(availableSlot);
   }
-
-
 
   return availableSlots;
 }
@@ -307,16 +298,11 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
 
   const resourceDateCombinations = {};
 
-
-
   Object.entries(slotsByTypeAndDate).forEach(([date, resourcesByType]) => {
     const resourceTypes = Object.keys(resourcesByType);
     const combinations = getCombinations(resourcesByType, resourceTypes);
     resourceDateCombinations[date] = combinations;
   });
-
-
-
 
   function getCombinations(resourcesByType, resourceTypes) {
 
@@ -345,8 +331,6 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
   }
 
   let finalArray = [];
-
-
 
 
   for (const date in resourceDateCombinations) {
@@ -387,12 +371,6 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
       let combinedSlotsWithMinimumResourcesRequired = checkRequiredResourcesAvailableForAppointmentType(combinedObject);
 
 
-
-
-
-
-
-
       if (combinedSlotsWithMinimumResourcesRequired) {
         let possibleSlotAppointmentTimes = calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResourcesRequired);
 
@@ -413,20 +391,12 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
     }
   }
 
-
   return finalArray;
 
 }
 
 function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResourcesRequired) {
 
-
-
-
-
-
-
-  // Extract the required data from the combinedSlotsWithMinimumResourcesRequired object
   const {
     date,
     type,
@@ -451,15 +421,7 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
     roomDuration
   } = appointmentRules[type];
 
-
-
-
-
   const participantDuration = Math.max(researcherDuration + researcherOffset, nurseDuration + nurseOffset, psychologistDuration + psychologistOffset, roomDuration + roomOffset);
-
-
-
-
 
   let earliestStartTime;
   let latestStartTime;
