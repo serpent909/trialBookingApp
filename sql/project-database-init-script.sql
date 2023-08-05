@@ -1,5 +1,4 @@
-CREATE TABLE IF NOT EXISTS
-    appointments (
+CREATE TABLE appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         participant_id INTEGER,
         appointment_number INTEGER NOT NULL,
