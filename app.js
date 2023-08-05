@@ -503,7 +503,6 @@ app.delete("/appointments/:id", async (req, res) => {
   }
 });
 
-
 // Start the server running.
 app.listen(port, hostname, function () {
   console.log(`App listening on ${hostname}!`);
