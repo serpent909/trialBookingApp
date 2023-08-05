@@ -16,10 +16,11 @@
 //Edit base availability (add more or remove some)
 //Stop the base schedules from being populated every time the server starts
 //Favicon
+//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
 
 //TODO: 
 //nurse1 and nurse2
-//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
+//remove room 3
 //shift all appointments x weeks option
 //Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
@@ -31,7 +32,7 @@ const sqlite3 = require("sqlite3");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const hostname = "0.0.0.0"; 
+const hostname = "0.0.0.0";
 app.set("trust proxy", true);
 
 const handlebars = require("express-handlebars");
@@ -326,7 +327,6 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
-
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
@@ -345,11 +345,26 @@ app.post("/appointments", async (req, res) => {
       date
     } = req.body;
 
-    if (multiple_appointments == 'true') {
+    // Check if any appointment is for multiple appointments
+    if (multiple_appointments === 'true') {
+      // Create an array to store all the appointments that need to be booked
+      const appointmentsToBook = [];
 
       for (let i = parseInt(appointmentNumber); i <= 8; i++) {
-        await appointmentService.createAppointment(
-          db,
+        // Calculate the start time for the next appointment, one week apart
+        let fullStartTime = moment(date + " " + startTime, "YYYY-MM-DD HH:mm");
+
+
+        // Check if all resources are available at the calculated start time
+        const resourcesAvailable = await Promise.all([
+          researcherName && isResourceAvailable(db, researcherName, appointmentNumber, fullStartTime),
+          nurseName && isResourceAvailable(db, nurseName, appointmentNumber, fullStartTime),
+          psychologistName && isResourceAvailable(db, psychologistName, appointmentNumber, fullStartTime),
+          roomName && isResourceAvailable(db, roomName, appointmentNumber, fullStartTime)
+        ]);
+
+        // If all resources are available, add the appointment details to the array
+        appointmentsToBook.push({
           participantNumber,
           researcherName,
           nurseName,
@@ -358,15 +373,38 @@ app.post("/appointments", async (req, res) => {
           appointmentNumber,
           date,
           startTime
-        );
+        });
+
         date = moment(date).add(7, 'days').format('YYYY-MM-DD');
         appointmentNumber = i + 1;
-
       }
-    }
 
-    if (multiple_appointments == 'false') {
+      // If all the appointments are available, book them all at once inside a transaction
+      await db.run('BEGIN TRANSACTION');
 
+      try {
+        for (const appointment of appointmentsToBook) {
+          await appointmentService.createAppointment(
+            db,
+            appointment.participantNumber,
+            appointment.researcherName,
+            appointment.nurseName,
+            appointment.psychologistName,
+            appointment.roomName,
+            appointment.appointmentNumber,
+            appointment.date,
+            appointment.startTime
+          );
+        }
+
+        await db.run('COMMIT');
+      } catch (error) {
+        // If any operation fails, rollback the transaction
+        await db.run('ROLLBACK');
+        throw error; // Rethrow the error to be handled by the caller
+      }
+    } else {
+      // For a single appointment, just book it directly
       await appointmentService.createAppointment(
         db,
         participantNumber,
@@ -380,13 +418,14 @@ app.post("/appointments", async (req, res) => {
       );
     }
 
-    res.json({ message: "Appointment created successfully" });
+    res.json({ message: "Appointment(s) created successfully" });
   } catch (err) {
     console.error('Failed to create appointment:', err);
     const errorMessage = err.message || "Failed to create appointment";
     res.status(500).json({ error: errorMessage });
   }
 });
+
 
 
 app.get("/participants", async (req, res) => {

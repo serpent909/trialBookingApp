@@ -7,16 +7,16 @@ async function createAppointment(db, participantName, researcherName, nurseName,
   startTime = date + ' ' + startTime;
 
   const researcherRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [researcherName]);
-  const researcher_id = researcherRow? researcherRow.id : null;
-  
+  const researcher_id = researcherRow ? researcherRow.id : null;
+
   const nurseRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [nurseName]);
-  const nurse_id = nurseRow? nurseRow.id : null;
+  const nurse_id = nurseRow ? nurseRow.id : null;
 
   const psychologistRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [psychologistName]);
-  const psychologist_id = psychologistRow? psychologistRow.id : null;
+  const psychologist_id = psychologistRow ? psychologistRow.id : null;
 
   const roomRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [roomName]);
-  const room_id = roomRow? roomRow.id : null;
+  const room_id = roomRow ? roomRow.id : null;
 
   let appointment_number = parseInt(appointmentName)
   let participant_id = participantName
@@ -53,9 +53,9 @@ async function createAppointment(db, participantName, researcherName, nurseName,
     end_time = end_time.format('YYYY-MM-DD HH:mm')
   }
 
-  console.log(end_time)
 
-  await db.run('BEGIN TRANSACTION');
+
+
 
   try {
     // First, insert into the appointments table
@@ -77,7 +77,7 @@ async function createAppointment(db, participantName, researcherName, nurseName,
       }
 
       let bookableThingRow = await db.get('SELECT name FROM bookable_things WHERE id = ?', [bookable_things[i]]);
-   
+
 
       let { newStartTime, newEndTime } = adjustTimes(appointment_type_id, bookable_things[i], startTime, end_time);
 
@@ -87,10 +87,8 @@ async function createAppointment(db, participantName, researcherName, nurseName,
       );
     }
 
-    await db.run('COMMIT');
+
   } catch (error) {
-    // If any operation fails, rollback the transaction
-    await db.run('ROLLBACK');
     throw error; // Rethrow the error to be handled by the caller
   }
 }
@@ -98,7 +96,6 @@ async function createAppointment(db, participantName, researcherName, nurseName,
 // Implementation code for calculating start and end times
 function calculateTime(resource, appointmentType, originalStartTime) {
 
-  resource = resource.toLowerCase();
 
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
@@ -131,14 +128,66 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };
 }
 
-async function isResourceAvailable(db, resourceId, appointmentType, startTime) {
+async function isResourceAvailable(db, resourceName, appointmentNumber, startTime) {
+  
+
+  let appointmentType;
 
   //Implement logic to check if the resource is available
-  const endTime = calculateTime(resourceId, appointmentType, startTime)
 
+  if (appointmentNumber == 1 || appointmentNumber == 2) {
+    appointmentType = appointmentNumber;
+  } else if (appointmentNumber == 3 || appointmentNumber == 4 || appointmentNumber == 5 || appointmentNumber == 6 || appointmentNumber == 7 || appointmentNumber == 8){
+    appointmentType = 3;
+  } else {
+    throw new Error('Invalid appointment number');
+  }
+
+  const resourceType = resourceName.slice(0, -1).toLowerCase();
+  const calculatedResourceTimes = calculateTime(resourceType, appointmentType, startTime)
+
+  const resourceStartTime = calculatedResourceTimes.calculatedStartTime;
+  const resourceEndTime = calculatedResourceTimes.calculatedEndTime;
+  const resourceDate = resourceStartTime.split(' ')[0];
+
+  const resourceIdRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [resourceName]);
+  const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
+  const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
+
+  if (!sameDaySchedule) {
+    throw new Error(`No availability schedule found for ${resourceName} on ${resourceDate}`);
+  }
+
+  const slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
+
+  if (!slotCalculationResult) {
+    throw new Error(`The ${resourceName} is not available at ${resourceStartTime} on ${resourceDate}`);
+  }
+  
+
+  return slotCalculationResult 
+
+}
+
+function isSlotAvailable(resourceStartTime, resourceEndTime, scheduleStartTime, scheduleEndTime) {
+
+  //Remove date component from the time strings
+const resourceDateObject = new Date(resourceStartTime);
+const scheduleDateObject = new Date(scheduleStartTime);
+
+const scheduleStartDateObject = new Date(scheduleStartTime);
+const scheduleEndDateObject = new Date(scheduleEndTime);
+
+  // Implement logic to check if the slot is available
+  if (resourceStartTime < scheduleStartTime || resourceEndTime > scheduleEndTime) {
+    return false;
+  }
+
+  return true;
 }
 
 module.exports = {
   createAppointment,
-  calculateTime
+  calculateTime,
+  isResourceAvailable
 };
