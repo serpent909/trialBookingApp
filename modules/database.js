@@ -128,7 +128,6 @@ async function initDatabase() {
       await populateSchedules(db);
 
     }
-
     return db;
   } catch (err) {
     console.error('Failed to execute the SQL script:', err);
