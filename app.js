@@ -16,10 +16,11 @@
 //Edit base availability (add more or remove some)
 //Stop the base schedules from being populated every time the server starts
 //Favicon
+//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
 
 //TODO: 
 //nurse1 and nurse2
-//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
+//remove room 3
 //shift all appointments x weeks option
 //Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
@@ -351,20 +352,16 @@ app.post("/appointments", async (req, res) => {
 
       for (let i = parseInt(appointmentNumber); i <= 8; i++) {
         // Calculate the start time for the next appointment, one week apart
+        let fullStartTime = moment(date + " " + startTime, "YYYY-MM-DD HH:mm");
 
 
         // Check if all resources are available at the calculated start time
         const resourcesAvailable = await Promise.all([
-          isResourceAvailable(db, researcherName, appointmentNumber, startTime),
-          isResourceAvailable(db, nurseName, appointmentNumber, startTime),
-          isResourceAvailable(db, psychologistName, appointmentNumber, startTime),
-          isResourceAvailable(db, roomName, appointmentNumber, startTime)
+          researcherName && isResourceAvailable(db, researcherName, appointmentNumber, fullStartTime),
+          nurseName && isResourceAvailable(db, nurseName, appointmentNumber, fullStartTime),
+          psychologistName && isResourceAvailable(db, psychologistName, appointmentNumber, fullStartTime),
+          roomName && isResourceAvailable(db, roomName, appointmentNumber, fullStartTime)
         ]);
-
-        // If any resource is not available, stop booking subsequent appointments
-        if (resourcesAvailable.includes(false)) {
-          throw new Error("Resource not available for one or more subsequent appointments.");
-        }
 
         // If all resources are available, add the appointment details to the array
         appointmentsToBook.push({
