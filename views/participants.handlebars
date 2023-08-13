@@ -39,9 +39,9 @@
     <tbody>
       {{#each arrangedData}}
       <tr>
-        <td>{{participantId}}</td>
+        <td class="participantData">{{participantId}}</td>
         {{#each appointments}}
-        <td data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
+        <td id="participantData" data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
           data-appointment-id="{{this.appointmentId}}" class="{{#if this.startTime}}booked{{else}}open{{/if}}"
           class="testing">
           {{#if this.startTime}}

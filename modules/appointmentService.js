@@ -147,14 +147,17 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
   const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
   const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
 
-  if (Object.keys(sameDaySchedule).length === 0) {
+  //If now schedule available for resource on the same day, throw an error
+  if (!sameDaySchedule) {
     throw new Error(`No availability schedule found for ${resourceName} on ${resourceDate}`);
   }
 
-  if (Object.keys(sameDayAppointments).length === 0) {
-    const slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
+  //If the resource is available on the required day and their are no appointments on the same day, check if the required appointment time is within he start and end times of the resource schedule
+  if (!sameDayAppointments) {
+    var slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
   } else {
-    //TODO: implement logic to check if the required appointment time is withint he start and end times of the resource schedule and also outside existing appointments
+    //TODO: implement logic to check if the required appointment time is within he start and end times of the resource schedule and also outside existing appointments
+    return false;
 
   }
 

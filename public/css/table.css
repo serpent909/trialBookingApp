@@ -15,8 +15,14 @@ table {
   margin-top: 50px;
 }
 
+.participantData, #participantData {
+  height: 75px;
+  width: 150px;
+  font-size: large;
+}
+
 th, td {
-  padding: 12px;
+  padding: 10px;
   text-align: left;
 }
 
