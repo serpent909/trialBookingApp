@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update the state of all row checkboxes based on the select all checkbox
         for (let i = 0; i < rowCheckboxes.length; i++) {
-            console.log("hihihihih")
             rowCheckboxes[i].checked = isChecked;
             const rowId = rowCheckboxes[i].closest("tr").getAttribute("data-id");
 
@@ -122,26 +121,5 @@ document.addEventListener("DOMContentLoaded", function () {
             }).showToast();
         });
     });
-
-
-
-    //   const response = await fetch("/schedules", {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(selectedRowIdsArray),
-    //   });
-
-    //   const jsonResponse = await response.json();
-    //     console.log(jsonResponse);
-    // } catch (error) {
-    //   console.error(error);
-    // console.log("there was an issue")
-    // }
-    // await Promise.all(
-    //     window.location.reload()
-    // );
-
 
 });

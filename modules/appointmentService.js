@@ -95,7 +95,6 @@ function calculateTime(resource, appointmentType, originalStartTime) {
 
   resource = resource.toLowerCase();
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
-  console.log(offset)
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
   let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DD HH:mm');
   let calculatedEndTime = moment(calculatedStartTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm');

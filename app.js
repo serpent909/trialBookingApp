@@ -264,7 +264,7 @@ app.delete("/schedules", async (req, res) => {
 
 //get the remaining appointment availability
 app.get("/appointmentAvailability", async (req, res) => {
-  console.log(req.query)
+
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
@@ -312,7 +312,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
-  console.log(req.body)
+
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
