@@ -3,7 +3,7 @@ const path = require('path');
 const sqlite = require('sqlite');
 const sqlite3 = require('sqlite3');
 
-const DB_PATH = path.join(__dirname, '..', 'project-database.db');
+const DB_PATH = process.env.SQLITE_DB_PATH || path.join(__dirname, '..', 'project-database.db');
 const SQL_SCRIPT_PATH = path.join(__dirname, '..', 'sql', 'project-database-init-script.sql');
 const AVAILABILITY_DIR = path.join(__dirname, '..', 'config');
 

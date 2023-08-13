@@ -1,6 +1,4 @@
 //TODO: 
-//nurse1 and nurse2
-//remove room 3
 //shift all appointments x weeks option
 //Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
@@ -17,7 +15,7 @@ app.set("trust proxy", true);
 
 const handlebars = require("express-handlebars");
 const path = require("path");
-const DB_PATH = path.join(__dirname, 'project-database.db');
+const DB_PATH = process.env.SQLITE_DB_PATH || path.join(__dirname, 'project-database.db');
 
 const availableSlotscalculationService = require('./modules/availableSlotsCalculationService');
 const appointmentService = require('./modules/appointmentService.js');
