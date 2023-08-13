@@ -8,8 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const researcherName = searchParams.get('researcherName');
     const psychologistName = searchParams.get('psychologistName');
     const roomName = searchParams.get('roomName');
+    const nurseName = searchParams.get('nurseName');
     const appointmentNumber = searchParams.get('appointmentNumber');
     const participantNumber = searchParams.get('participantNumber');
+  
 
     // Update the form fields with the search parameter values
     document.getElementById('startDate').value = startDate || '';
@@ -19,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('psychologistName').value = psychologistName || '';
     document.getElementById('researcherName').value = researcherName || '';
     document.getElementById('roomName').value = roomName || '';
+    document.getElementById('nurseName').value = nurseName || '';
 
     form.addEventListener('submit', function (event) {
       // Store the form values in localStorage
@@ -30,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         psychologistName: document.getElementById('psychologistName').value,
         roomName: document.getElementById('roomName').value,
         researcherName: document.getElementById('researcherName').value,
+        nurseName: document.getElementById('nurseName').value,
       };
 
       localStorage.setItem('formValues', JSON.stringify(formValues));

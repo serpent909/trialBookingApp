@@ -3,7 +3,7 @@ const fs = require("fs");
 const appointmentService = require('./appointmentService.js');
 const appointmentRules = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
-function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, researcherName, psychologistName, roomName) {
+function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, researcherName, psychologistName, roomName, nurseName) {
 
 
   let appointment_type_id;
@@ -158,17 +158,27 @@ function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, r
     });
   }
 
-  if (researcherName) {
+  if(nurseName) {
     availableDaySlots = availableDaySlots.filter((slot) => {
 
+      const slotName = slot.name;
+      const slotType = slot.type;
+      if (slotType === "Nurse") {
+        return slotName === nurseName;
+      } else {
+        return true;
+      }
+    });
+  }
+
+  if (researcherName) {
+    availableDaySlots = availableDaySlots.filter((slot) => {
 
       const slotName = slot.name;
       const slotType = slot.type;
       if (slotType === "Researcher") {
         return slotName === researcherName;
       } else {
-
-
         return true;
       }
     });
@@ -218,7 +228,7 @@ function calculateAvailableSlots(availabilityType, availabilityName, availabilit
 }
 
 
-function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmnetNumber, researcherName, psychologistName, roomName) {
+function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmnetNumber, researcherName, psychologistName, roomName, nurseName) {
 
 
   const availableSlots = [];
@@ -250,7 +260,8 @@ function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDat
       appointmnetNumber,
       researcherName,
       psychologistName,
-      roomName
+      roomName,
+      nurseName
     );
 
     availableDaySlots.forEach((slot) => {

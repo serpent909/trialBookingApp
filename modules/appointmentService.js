@@ -1,5 +1,6 @@
 const fs = require("fs");
 const moment = require('moment');
+const { off } = require("process");
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
 async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
@@ -92,8 +93,9 @@ async function createAppointment(db, participantName, researcherName, nurseName,
 // Implementation code for calculating start and end times
 function calculateTime(resource, appointmentType, originalStartTime) {
 
-
+  resource = resource.toLowerCase();
   let offset = appointmentConfig[`type${appointmentType}`][`${resource}Offset`];
+  console.log(offset)
   let duration = appointmentConfig[`type${appointmentType}`][`${resource}Duration`];
   let calculatedStartTime = moment(originalStartTime).add(offset, 'minutes').format('YYYY-MM-DD HH:mm');
   let calculatedEndTime = moment(calculatedStartTime).add(duration, 'minutes').format('YYYY-MM-DD HH:mm');
@@ -109,7 +111,7 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   // Determine the resource based on the resourceId
   if (resourceId === 1 || resourceId === 2) {
     resource = 'Researcher';
-  } else if (resourceId === 3) {
+  } else if (resourceId === 3 || resourceId === 4) {
     resource = 'Nurse';
   } else if ([7, 8, 9, 10, 11, 12, 13].includes(resourceId)) {
     resource = 'Psychologist';
@@ -118,7 +120,9 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   }
 
   // Calculate the new start and end times
+  console.log(resource, appointmentType, originalStartTime)
   let result = calculateTime(resource, appointmentType, originalStartTime);
+
 
   // Return the new start and end times
   return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };

@@ -1,23 +1,3 @@
-//DONE:
-//Restructure SQL tables to remove repitition of id's
-//Reactor code to use new tables
-//Time and date formatting
-//Add logic to store appointment times in the db for each resource based on the main appointment time and type
-//Refactor code with improved naming conventions and seperation of concerns
-//Add participant view to display their current boking information, make it obvious which appointment needs to be booked next
-//Potentially add a book time button from the participant view page to populate the booking form with the correct information
-//Improve available appointments view by incorporating appointment number logic
-//Potentially generate available slots in 15-minute increments?
-//Delete appointment
-//For appointment three onwards:
-//-auto book option
-//check additional slots available when an illegal booking is made. How to stop illegal bookings from the participants table.
-//need a new booking type which is for blocking out time for any resource
-//Edit base availability (add more or remove some)
-//Stop the base schedules from being populated every time the server starts
-//Favicon
-//What happens with autobook if there is a week missing for the psychologist? ---> it lets you book it. Need to prevent this.
-
 //TODO: 
 //nurse1 and nurse2
 //remove room 3
@@ -114,6 +94,23 @@ app.locals.siteName = "PAM Trial Booking App";
 
 
 //TODO: implement logic to look these up from the database
+
+
+const researcherIds = [
+  { id: 1, name: "Researcher1" },
+  { id: 2, name: "Researcher2" },
+];
+
+const nurseIds = [
+  { id: 3, name: "Nurse1" },
+  { id: 4, name: "Nurse2" },
+];
+
+const roomIds = [
+  { id: 5, name: "Room1" },
+  { id: 6, name: "Room2" },
+]
+
 const psychologistIds = [
   { id: 7, name: "Psychologist1" },
   { id: 8, name: "Psychologist2" },
@@ -124,17 +121,9 @@ const psychologistIds = [
   { id: 13, name: "Psychologist7" },
 ];
 
-const roomIds = [
-  { id: 4, name: "Room 1" },
-  { id: 5, name: "Room 2" },
-  { id: 6, name: "Room 3" },
-]
-const researcherIds = [
-  { id: 1, name: "Researcher 1" },
-  { id: 2, name: "Researcher 2" },
-];
 
 app.locals.researcher_ids = researcherIds;
+app.locals.nurse_ids = nurseIds;
 app.locals.psychologist_ids = psychologistIds;
 app.locals.room_ids = roomIds;
 app.locals.appointment_numbers = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -277,18 +266,20 @@ app.delete("/schedules", async (req, res) => {
 
 //get the remaining appointment availability
 app.get("/appointmentAvailability", async (req, res) => {
+  console.log(req.query)
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
       driver: sqlite3.Database,
     });
 
-    const { startDate, endDate, appointmentNumber, psychologistName, roomName, researcherName, participantNumber } = req.query;
+    const { startDate, endDate, participantNumber, appointmentNumber, psychologistName, nurseName, roomName, researcherName } = req.query;
 
     //Populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
     const dropDownOptions = {
       roomNames: rows.filter(row => row.type === 'Room').map(row => row.name),
+      nurseNames: rows.filter(row => row.type === 'Nurse').map(row => row.name),
       psychologistNames: rows.filter(row => row.type === 'Psychologist').map(row => row.name),
       researcherNames: rows.filter(row => row.type === 'Researcher').map(row => row.name)
     }
@@ -301,7 +292,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
 
-    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName);
+    const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName, nurseName);
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
 
 
@@ -323,6 +314,7 @@ app.get("/appointmentAvailability", async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
+  console.log(req.body)
   try {
     const db = await sqlite.open({
       filename: DB_PATH,

@@ -75,10 +75,10 @@ async function populateSchedules(db) {
   const resources = [
     { name: 'Researcher1', type: 'Researcher' },
     { name: 'Researcher2', type: 'Researcher' },
-    { name: 'Nurse', type: 'Nurse' },
+    { name: 'Nurse1', type: 'Nurse' },
+    { name: 'Nurse2', type: 'Nurse' },
     { name: 'Room1', type: 'Room' },
     { name: 'Room2', type: 'Room' },
-    { name: 'Room3', type: 'Room' },
     { name: 'Psychologist1', type: 'Psychologist' },
     { name: 'Psychologist2', type: 'Psychologist' },
     { name: 'Psychologist3', type: 'Psychologist' },

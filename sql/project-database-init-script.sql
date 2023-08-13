@@ -26,8 +26,12 @@ SELECT 'Researcher', 'Researcher2'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'Researcher2');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Nurse', 'Nurse'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse');
+SELECT 'Nurse', 'Nurse1'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Nurse1');
+
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Nurse', 'Nurse2'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Nurse2');
 
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Room', 'Room1'
@@ -36,10 +40,6 @@ WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = '
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Room', 'Room2'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = 'Room2');
-
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Room', 'Room3'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = 'Room3');
 
 INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Psychologist', 'Psychologist1'
