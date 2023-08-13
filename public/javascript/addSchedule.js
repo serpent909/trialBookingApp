@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json().then(data => {
                     alert(data.error);
                 });
-                
             }
         });
     
