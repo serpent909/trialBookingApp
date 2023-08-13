@@ -166,7 +166,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
   }
 
   if (!slotCalculationResult) {
-    throw new Error(`The ${resourceName} is not available at ${resourceStartTime} on ${resourceDate}`);
+    throw new Error(`${resourceName} is not available at ${resourceStartTime} on ${resourceDate}`);
   }
   return slotCalculationResult
 
