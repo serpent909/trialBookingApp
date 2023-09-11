@@ -3,6 +3,13 @@
 //Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
 
+
+//TODO: 
+// Show name of resources maybe
+// Return an error if a higher appointment has a later date
+// Are remaining appointments available for autobook
+// SCREEN003 could become PAM001????????????????????????????????????????????????????????????????????????????????????????????????????????
+
 const moment = require("moment");
 const express = require("express");
 const sqlite = require("sqlite");
@@ -37,11 +44,12 @@ app.engine(
 
         const separator = dateTime.includes('T') ? 'T' : ' ';
         const [datePart, timePart] = dateTime.split(separator);
+        const weekday = moment(datePart).format('ddd');
         const [year, month, day] = datePart.split('-');
         const [hour, minute] = timePart.split(':');
 
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const formattedDate = `${year} ${months[parseInt(month, 10) - 1]} ${day}, ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        const formattedDate = `${weekday} ${day} ${months[parseInt(month, 10) - 1]}  ${year}, ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
         return formattedDate;
       },
