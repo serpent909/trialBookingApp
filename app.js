@@ -1,6 +1,5 @@
 //TODO: 
 //shift all appointments x weeks option
-//Show appointment details in modal: start/end times for each resource and participant
 //Authentication?
 
 
@@ -339,7 +338,8 @@ app.post("/appointments", async (req, res) => {
       date
     } = req.body;
 
-    // Check if any appointment is for multiple appointments
+
+    // Check if booking is for multiple appointments
     if (multiple_appointments === 'true') {
       // Create an array to store all the appointments that need to be booked
       const appointmentsToBook = [];

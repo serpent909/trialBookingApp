@@ -1,6 +1,5 @@
 const fs = require("fs");
 const moment = require('moment');
-const { off } = require("process");
 const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.json', 'utf8'));
 
 async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
@@ -21,6 +20,14 @@ async function createAppointment(db, participantName, researcherName, nurseName,
 
   let appointment_number = parseInt(appointmentName)
   let participant_id = participantName
+
+  //Check participant has no higher number appointments booked earlier
+  const participantBookedAppointments = await db.all('SELECT appointment_number FROM appointments WHERE participant_id = ?', [participant_id]);
+  participantBookedAppointments.forEach(function (appointment) {
+    if (appointment.appointment_number >= appointment_number) {
+      throw new Error(`The participant already has a later appointment booked before this date`);
+    }
+  });
 
   let end_time;
   let appointment_type_id;
