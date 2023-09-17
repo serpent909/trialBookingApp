@@ -41,9 +41,9 @@
       <tr>
         <td class="participantData">{{participantId}}</td>
         {{#each appointments}}
-        <td id="participantData" data-participant-id="{{../participantId}}" data-appointment-number="{{indexPlusOne @index}}"
-          data-appointment-id="{{this.appointmentId}}" class="{{#if this.startTime}}booked{{else}}open{{/if}}"
-          class="testing">
+        <td id="participantData" data-participant-id="{{../participantId}}"
+          data-appointment-number="{{indexPlusOne @index}}" data-appointment-id="{{this.appointmentId}}"
+          class="{{#if this.startTime}}booked{{else}}open{{/if}}" class="testing">
           {{#if this.startTime}}
           {{formatTime this.startTime}}
           {{/if}}
@@ -114,6 +114,7 @@
     <!-- Details of the existing booking -->
     <p id="existing-booking-details"></p>
     <p id="existing-booking-id"></p>
+    <p></p>
     <button onclick="closeExistingModal()">Close</button>
     <button onclick="deleteAppointment()">Delete Appointment</button>
   </div>
@@ -163,23 +164,34 @@
     }
 
     // Cell click event listener
-
     document.querySelectorAll('td').forEach((td, index) => {
       if ((index + 1) % 9 !== 1) {
-        td.addEventListener('click', function () {
+        td.addEventListener('click', async function () {
 
           const participantId = this.dataset.participantId;
           const appointmentNumber = this.dataset.appointmentNumber;
           const appointmentId = this.dataset.appointmentId;
           const startTime = this.textContent.trim();
+       
+
 
           if (startTime) {
-            // Hide booking modal in case it's displayed
+            // Get the appointment details
             document.getElementById('booking-modal').style.display = 'none';
-            document.getElementById('existing-booking-details').textContent = 'Appointment at ' + startTime;
+            document.getElementById('existing-booking-details').textContent = 'Appointment at: ' + startTime;
             document.getElementById('existing-booking-id').textContent = 'Appointment ID: ' + appointmentId
             document.getElementById('existing-booking-modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
+            const appointmentDetailsArray = await getAppointmentDetails();
+            const container = document.getElementById('existing-booking-id');
+
+
+            appointmentDetailsArray.forEach(detail => {
+              const pElement = document.createElement('p');
+              pElement.textContent = `${detail.booked_name} : ${detail.start_time}`;
+              container.appendChild(pElement);
+
+            });
           } else {
             // Hide existing booking modal in case it's displayed
             document.getElementById('existing-booking-modal').style.display = 'none';
@@ -208,6 +220,27 @@
       // Redirect to the second page with the query string
       window.location.href = '/appointmentAvailability?' + queryString;
     })
+
+
+    async function getAppointmentDetails() {
+      let appointmentIdElement = document.getElementById('existing-booking-id');
+      let appointmentToGetDetails = appointmentIdElement.textContent.split(': ')[1];
+
+      return fetch('/bookedTimes/' + appointmentToGetDetails, {
+        method: 'GET',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();  // Parse the response as JSON and return it
+        })
+        .catch((error) => {
+          alert('There was an error. Please try again.');
+          throw error;  // Re-throw the error so it can be caught/handled by the calling function if needed
+        });
+    }
+
 
 
 

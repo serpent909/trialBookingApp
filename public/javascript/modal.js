@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         appointmentNumber: appointmentNumber
       };
 
-      populateModalContent();
+      populateModalContent(appointmentNumber);
       showModal();
     });
   });
@@ -46,94 +46,102 @@ document.addEventListener('DOMContentLoaded', function () {
   // Populate the content of the modal with the selected appointment details
   function populateModalContent() {
 
-    document.getElementById('startTimeModal').textContent = selectedAppointment.startTime;
-    document.getElementById('endTimeModal').textContent = selectedAppointment.endTime;
-    document.getElementById('researcherNameModal').textContent = selectedAppointment.researcherName;
-    document.getElementById('psychologistNameModal').textContent = selectedAppointment.psychologistName;
-    document.getElementById('roomNameModal').textContent = selectedAppointment.roomName;
-    document.getElementById('nurseNameModal').textContent = selectedAppointment.nurseName;
-    document.getElementById('participantNumberModal').textContent = selectedAppointment.participantNumber;
-    document.getElementById('appointmentNumberModal').textContent = selectedAppointment.appointmentNumber;
-    document.getElementById('dateModal').textContent = selectedAppointment.date;
+    if (parseInt(selectedAppointment.appointmentNumber) < 3) {
 
+      const divToHide = document.getElementById('multipleAppointmentsDiv');
+      divToHide.style.display = "none";
 
-  }
-
-  // Show the booking modal
-  function showModal() {
-    bookingModal.classList.add('show');
-    document.body.classList.add('modal-open');
-    setTimeout(function () {
-      document.addEventListener('click', handleOutsideClick);
-    }, 100);
-  }
-
-  // Close the booking modal
-  function closeBookingModal() {
-    bookingModal.classList.remove('show');
-    document.body.classList.remove('modal-open');
-  }
-
-  // Confirm booking button click event
-  confirmBookingBtn.addEventListener('click', function () {
-    const multiple_appointments = document.getElementById('multiple_appointments').value;
-    selectedAppointment.multiple_appointments = multiple_appointments;
-  
-    const url = '/appointments';
-  
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(selectedAppointment),
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return response.json().then(data => {
-            throw new Error(data.error);
-          });
-        }
-      }).then(data => {
-        console.log('Success:', data);
-        closeBookingModal();
-  
-        Toastify({
-          text: data.message,
-          duration: 3000,
-          gravity: "top",
-          position: 'center',
-          backgroundColor: "#4caf50",
-          newWindow: true
-        }).showToast();
-      }).catch(error => {
-        console.error('Error:', error);
-  
-        Toastify({
-          text: error.message,
-          duration: -1,
-          gravity: "top",
-          position: 'center',
-          backgroundColor: "#ff0000",
-          close: true
-        }).showToast();
-      });
-  });
-
-  // Close button click event
-
-
-  closeBtn2.addEventListener('click', function () {
-    closeBookingModal();
-  });
-
-  function handleOutsideClick(event) {
-    if (event.target === bookingModal) {
-      closeBookingModal();
-      document.removeEventListener('click', handleOutsideClick);
     }
-  }
 
-});
+
+      document.getElementById('startTimeModal').textContent = selectedAppointment.startTime;
+      document.getElementById('endTimeModal').textContent = selectedAppointment.endTime;
+      document.getElementById('researcherNameModal').textContent = selectedAppointment.researcherName;
+      document.getElementById('psychologistNameModal').textContent = selectedAppointment.psychologistName;
+      document.getElementById('roomNameModal').textContent = selectedAppointment.roomName;
+      document.getElementById('nurseNameModal').textContent = selectedAppointment.nurseName;
+      document.getElementById('participantNumberModal').textContent = selectedAppointment.participantNumber;
+      document.getElementById('appointmentNumberModal').textContent = selectedAppointment.appointmentNumber;
+      document.getElementById('dateModal').textContent = selectedAppointment.date;
+
+
+    }
+
+    // Show the booking modal
+    function showModal() {
+      bookingModal.classList.add('show');
+      document.body.classList.add('modal-open');
+      setTimeout(function () {
+        document.addEventListener('click', handleOutsideClick);
+      }, 100);
+    }
+
+    // Close the booking modal
+    function closeBookingModal() {
+      bookingModal.classList.remove('show');
+      document.body.classList.remove('modal-open');
+    }
+
+    // Confirm booking button click event
+    confirmBookingBtn.addEventListener('click', function () {
+      const multiple_appointments = document.getElementById('multiple_appointments').value;
+      selectedAppointment.multiple_appointments = multiple_appointments;
+
+      const url = '/appointments';
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedAppointment),
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return response.json().then(data => {
+              throw new Error(data.error);
+            });
+          }
+        }).then(data => {
+          console.log('Success:', data);
+          closeBookingModal();
+
+          Toastify({
+            text: data.message,
+            duration: 3000,
+            gravity: "top",
+            position: 'center',
+            backgroundColor: "#4caf50",
+            newWindow: true
+          }).showToast();
+        }).catch(error => {
+          console.error('Error:', error);
+
+          Toastify({
+            text: error.message,
+            duration: -1,
+            gravity: "top",
+            position: 'center',
+            backgroundColor: "#ff0000",
+            close: true
+          }).showToast();
+        });
+    });
+
+    // Close button click event
+
+
+    closeBtn2.addEventListener('click', function () {
+      closeBookingModal();
+    });
+
+    function handleOutsideClick(event) {
+      if (event.target === bookingModal) {
+        closeBookingModal();
+        document.removeEventListener('click', handleOutsideClick);
+      }
+    }
+
+  });
