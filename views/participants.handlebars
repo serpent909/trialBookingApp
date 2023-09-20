@@ -43,12 +43,10 @@
         {{#each appointments}}
         <td id="participantData" data-participant-id="{{../participantId}}"
           data-appointment-number="{{indexPlusOne @index}}" data-appointment-id="{{this.appointmentId}}"
-          class="{{#if this.startTime}}booked{{else}}open{{/if}}" class="testing">
+          class="{{#if this.startTime}}booked{{else}}open{{/if}}">
           {{#if this.startTime}}
           {{formatTime this.startTime}}
           {{/if}}
-          <br>
-          {{this.psychologist}}
         </td>
         {{/each}}
       </tr>
@@ -112,16 +110,18 @@
   <!-- The existing booking modal, hidden inside a modal -->
   <div id="existing-booking-modal" style="display: none;">
     <!-- Details of the existing booking -->
-    <p id="existing-booking-details"></p>
+    <h3 id="existing-booking-details"></h3>
     <p id="existing-booking-id"></p>
-    <p></p>
+
     <button onclick="closeExistingModal()">Close</button>
-    <button onclick="deleteAppointment()">Delete Appointment</button>
+    <button id="deleteAppointmentButton">Delete Appointment</button>
   </div>
 
   <div id="overlay"></div>
 
   <script>
+
+
 
 
     function openModal() {
@@ -140,11 +140,11 @@
       document.getElementById('overlay').style.display = 'none';
     }
 
-    function deleteAppointment() {
+    function deleteAppointment(appointmentId) {
       let appointmentIdElement = document.getElementById('existing-booking-id');
       let appointmentToDeleteId = appointmentIdElement.textContent.split(': ')[1];
 
-      fetch('/appointments/' + appointmentToDeleteId, {
+      fetch('/appointments/' + appointmentId, {
         method: 'DELETE',
       })
         .then(response => {
@@ -172,14 +172,17 @@
           const appointmentNumber = this.dataset.appointmentNumber;
           const appointmentId = this.dataset.appointmentId;
           const startTime = this.textContent.trim();
-       
+
+
 
 
           if (startTime) {
             // Get the appointment details
+            const deleteAppointmentButton = document.getElementById('deleteAppointmentButton');
+            deleteAppointmentButton.dataset.appointmentId = appointmentId;
             document.getElementById('booking-modal').style.display = 'none';
-            document.getElementById('existing-booking-details').textContent = 'Appointment at: ' + startTime;
-            document.getElementById('existing-booking-id').textContent = 'Appointment ID: ' + appointmentId
+            document.getElementById('existing-booking-details').textContent = startTime;
+            document.getElementById('existing-booking-id').innerHTML = `Appointment ID: ${appointmentId}`
             document.getElementById('existing-booking-modal').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
             const appointmentDetailsArray = await getAppointmentDetails();
@@ -187,9 +190,16 @@
 
 
             appointmentDetailsArray.forEach(detail => {
-              const pElement = document.createElement('p');
-              pElement.textContent = `${detail.booked_name} : ${detail.start_time}`;
-              container.appendChild(pElement);
+              const pElementType = document.createElement('p');
+              const pElementTime = document.createElement('p');
+              const brElement = document.createElement('br');
+              pElementType.textContent = `${detail.booked_name}`
+              pElementType.style.fontWeight = 'bold';
+              pElementType.style.marginBottom = '0px';
+              pElementTime.style.marginTop = '0px';
+              pElementTime.textContent = `${detail.start_time.split(' ')[1]} - ${detail.end_time.split(' ')[1]}`;
+              container.appendChild(pElementType);
+              container.appendChild(pElementTime);
 
             });
           } else {
@@ -204,6 +214,11 @@
       } else {
         td.classList.add('not-clickable')
       }
+    });
+
+    document.getElementById('deleteAppointmentButton').addEventListener('click', function () {
+      const appointmentId = this.dataset.appointmentId;
+      deleteAppointment(appointmentId);
     });
 
     document.getElementById('overlay').addEventListener('click', closeModal);

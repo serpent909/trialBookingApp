@@ -489,6 +489,7 @@ app.delete("/appointments/:id", async (req, res) => {
     });
 
     const { id } = req.params;
+    console.log('Received ID:', id);
 
     await db.run(`DELETE FROM booked_times WHERE appointment_id =?`, id)
     await db.run(`DELETE FROM appointments WHERE id = ?`, id);

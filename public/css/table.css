@@ -162,3 +162,25 @@ td:last-child {
   cursor: default;
 }
 
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+Button:hover {
+  background-color: #45a049;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  background-color: #3a9f40;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+}
+
