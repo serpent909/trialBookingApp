@@ -126,7 +126,6 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   }
 
   // Calculate the new start and end times
-  console.log(resource, appointmentType, originalStartTime)
   let result = calculateTime(resource, appointmentType, originalStartTime);
 
 

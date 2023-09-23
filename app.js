@@ -5,7 +5,6 @@
 
 //TODO: 
 // Show name of resources maybe
-// Return an error if a higher appointment has a later date
 // Are remaining appointments available for autobook
 // SCREEN003 could become PAM001????????????????????????????????????????????????????????????????????????????????????????????????????????
 
@@ -47,7 +46,7 @@ app.engine(
         const [year, month, day] = datePart.split('-');
         const [hour, minute] = timePart.split(':');
 
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const formattedDate = `${weekday} ${day} ${months[parseInt(month, 10) - 1]}  ${year}, ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
         return formattedDate;
@@ -489,7 +488,6 @@ app.delete("/appointments/:id", async (req, res) => {
     });
 
     const { id } = req.params;
-    console.log('Received ID:', id);
 
     await db.run(`DELETE FROM booked_times WHERE appointment_id =?`, id)
     await db.run(`DELETE FROM appointments WHERE id = ?`, id);
