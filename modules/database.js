@@ -71,21 +71,22 @@ async function getResourcType(db, resourceType) {
   return row ? row.type : null;
 }
 
+
 async function populateSchedules(db) {
   const resources = [
-    { name: 'Researcher1', type: 'Researcher' },
-    { name: 'Researcher2', type: 'Researcher' },
-    { name: 'Nurse1', type: 'Nurse' },
+    { name: 'Alesha', type: 'Researcher' },
+    { name: 'Lucia', type: 'Researcher' },
+    { name: 'Sarah', type: 'Nurse' },
     { name: 'Nurse2', type: 'Nurse' },
     { name: 'Room1', type: 'Room' },
     { name: 'Room2', type: 'Room' },
-    { name: 'Psychologist1', type: 'Psychologist' },
-    { name: 'Psychologist2', type: 'Psychologist' },
-    { name: 'Psychologist3', type: 'Psychologist' },
-    { name: 'Psychologist4', type: 'Psychologist' },
-    { name: 'Psychologist5', type: 'Psychologist' },
-    { name: 'Psychologist6', type: 'Psychologist' },
-    { name: 'Psychologist7', type: 'Psychologist' }
+    { name: 'Anoosh', type: 'Psychologist' },
+    { name: 'Geraldine', type: 'Psychologist' },
+    { name: "Ka'ula", type: 'Psychologist' },
+    { name: 'Eva', type: 'Psychologist' },
+    { name: 'Amy', type: 'Psychologist' },
+    { name: 'Meihana', type: 'Psychologist' },
+    { name: 'Sonali', type: 'Psychologist' }
   ];
 
   for (const resource of resources) {

@@ -88,13 +88,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(selectedRowIdsArray),
-        }).then(response => {
+        }).then(async response => {
             if (response.ok) {
                 return response.json();
             } else {
-                return response.json().then(data => {
-                    throw new Error(data.error);
-                });
+                const data = await response.json();
+                throw new Error(data.error);
             }
         }).then(data => {
             console.log('Success:', data);

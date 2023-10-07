@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const endDate = document.getElementById('schEndDate').value;
         const day = document.getElementById('schDay').value;
         const resourceName = document.getElementById('schResourceName').value;
-        
+
 
         const schedule = {
 
@@ -49,16 +49,43 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify(schedule)
         }).then(response => {
             if (response.ok) {
-                closeModal();
-                window.location.reload();
+                return response.json();
             } else {
-                
                 return response.json().then(data => {
-                    alert(data.error);
+                    throw new Error(data.error);
                 });
             }
+        }).then(data => {
+            console.log('Success:', data);
+
+            Toastify({
+                text: data.message,
+                duration: 3000,
+                gravity: "top",
+                position: 'center',
+                backgroundColor: "#4caf50",
+                newWindow: true
+            }).showToast();
+
+            closeModal();
+
+            // Reload the window after showing the toast (you can adjust the delay if needed)
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000); // Wait for 3 seconds before reloading
+        }).catch(error => {
+            console.error('Error:', error);
+
+            Toastify({
+                text: error.message,
+                duration: -1,
+                gravity: "top",
+                position: 'center',
+                backgroundColor: "#ff0000",
+                close: true
+            }).showToast();
         });
-    
+
     });
 
 });

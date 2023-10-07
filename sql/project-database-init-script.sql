@@ -18,19 +18,19 @@ CREATE TABLE
 
 -- Populate 'bookable_things' with predefined types if they don't exist
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Researcher', 'Researcher1'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'Researcher1');
+SELECT 'Researcher', 'Alesha'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'Alesha');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Researcher', 'Researcher2'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'Researcher2');
+SELECT 'Researcher', 'Lucia'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Researcher' AND name = 'Lucia');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Nurse', 'Nurse1'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Nurse1');
+SELECT 'Nurse', 'Sarah'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Sarah');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Nurse', 'Nurse2'
+SELECT 'Nurse',  'Nurse1'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Nurse2');
 
 INSERT OR IGNORE INTO bookable_things (type, name)
@@ -41,33 +41,33 @@ INSERT OR IGNORE INTO bookable_things (type, name)
 SELECT 'Room', 'Room2'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Room' AND name = 'Room2');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist1'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist1');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist', 'Anoosh'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Anoosh');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist2'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist2');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist',  'Geraldine' 
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Geraldine');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist3'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist3');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist',  "Ka'ula"
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = "Ka'ula");
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist4'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist4');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist',  'Eva'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Eva');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist5'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist5');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist', 'Amy'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Amy');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist6'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist6');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist',  'Meihana'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Meihana');
 
-INSERT OR IGNORE INTO bookable_things (type, name)
-SELECT 'Psychologist', 'Psychologist7'
-WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Psychologist7');
+INSERT OR IGNORE INTO bookable_things (type, name) 
+SELECT 'Psychologist', 'Sonali'
+WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Psychologist' AND name = 'Sonali');
 
 
 -- Create the 'booked_times' table

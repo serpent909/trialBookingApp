@@ -1,0 +1,17 @@
+{
+  "availability": [
+    {
+      "name": "Eva",
+      "startDate": "2023-10-01",
+      "endDate": "2025-12-01",
+      "type": "Psychologist",
+      "availabilityByDay": [
+        {
+          "dayOfWeek": "Thursday",
+          "startTime": "13:00",
+          "endTime": "15:30"
+        }
+      ]
+    }
+  ]
+}
