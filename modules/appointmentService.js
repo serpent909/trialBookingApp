@@ -4,6 +4,8 @@ const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.
 
 async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
 
+  console.log(date)
+
   startTime = date + ' ' + startTime;
 
   const researcherRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [researcherName]);
@@ -22,15 +24,20 @@ async function createAppointment(db, participantName, researcherName, nurseName,
   let participant_id = participantName
 
   //Check participant has no higher number appointments booked earlier
-  const participantBookedAppointments = await db.all('SELECT appointment_number FROM appointments WHERE participant_id = ?', [participant_id]);
+  const participantBookedAppointments = await db.all('SELECT appointment_number, start_time FROM appointments WHERE participant_id = ?', [participant_id]);
 
 
   if (participantBookedAppointments.length > 0) {
 
     participantBookedAppointments.forEach((existingAppointment) => {
 
-      let existingAppointmentDate = moment(existingAppointment.start_time).valueOf();
+      console.log(existingAppointment)
+
+      let existingAppointmentDate = moment((existingAppointment.start_time).split(' ')[0]).valueOf();
       let appointmentToBookDate = moment(date).valueOf();
+
+      console.log(appointmentToBookDate)
+      console.log(existingAppointmentDate)
 
 
 
@@ -179,6 +186,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
 
   const resourceIdRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [resourceName]);
   const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
+  console.log("sameDaySchedule", sameDaySchedule)
   const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
 
   //If no schedule available for resource on the same day, throw an error
@@ -188,6 +196,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
 
   //If the resource is available on the required day and their are no appointments on the same day, check if the required appointment time is within he start and end times of the resource schedule
   if (!sameDayAppointments) {
+    
     var slotCalculationResult = isSlotAvailable(resourceStartTime, resourceEndTime, sameDaySchedule.start_time, sameDaySchedule.end_time);
   } else {
     //TODO: implement logic to check if the required appointment time is within he start and end times of the resource schedule and also outside existing appointments
@@ -196,7 +205,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
   }
 
   if (!slotCalculationResult) {
-    throw new Error(`${resourceName} is not available at ${resourceStartTime} on ${resourceDate}`);
+    throw new Error(`${resourceName} is not available at ${resourceStartTime.split(' ')[1]} on ${resourceDate}`);
   }
   return slotCalculationResult
 

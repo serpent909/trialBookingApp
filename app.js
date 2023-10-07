@@ -88,10 +88,10 @@ require("./modules/database.js");
 app.locals.siteName = "PAM Trial Booking App";
 
 
-//TODO: implement logic to look these up from the database
+// TODO: implement logic to look these up from the database
 // const researcherIds = [
-//   { id: 1, name: "Researcher1" },
-//   { id: 2, name: "Researcher2" },
+//   { id: 1, name: "Alesha" },
+//   { id: 2, name: "Lucia" },
 // ];
 
 // const nurseIds = [
@@ -343,6 +343,8 @@ app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
+
+  console.log(req.body)
 
   try {
     const db = await sqlite.open({
