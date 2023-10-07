@@ -30,7 +30,7 @@ SELECT 'Nurse', 'Sarah'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Sarah');
 
 INSERT OR IGNORE INTO bookable_things (type, name) 
-SELECT 'Nurse',  'Nurse1'
+SELECT 'Nurse',  'Nurse2'
 WHERE NOT EXISTS (SELECT 1 FROM bookable_things WHERE type = 'Nurse' AND name = 'Nurse2');
 
 INSERT OR IGNORE INTO bookable_things (type, name)
