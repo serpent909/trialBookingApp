@@ -2,16 +2,15 @@
   "availability": [
     
     {
-      "name": "Meihana",
+      "name": "Anoosh",
       "startDate": "2023-10-01",
       "endDate": "2025-12-01",
       "type": "Psychologist",
       "availabilityByDay": [
-
         {
-          "dayOfWeek": "Saturday",
+          "dayOfWeek": "Monday",
           "startTime": "09:00",
-          "endTime": "13:00"
+          "endTime": "11:00"
         }
       ]
     }
