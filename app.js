@@ -1,13 +1,3 @@
-//TODO: 
-//shift all appointments x weeks option
-//Authentication?
-
-
-//TODO: 
-// Show name of resources maybe
-// Are remaining appointments available for autobook
-// SCREEN003 could become PAM001????????????????????????????????????????????????????????????????????????????????????????????????????????
-
 const moment = require("moment");
 const express = require("express");
 const sqlite = require("sqlite");
@@ -26,6 +16,7 @@ const availableSlotscalculationService = require('./modules/availableSlotsCalcul
 const appointmentService = require('./modules/appointmentService.js');
 const schedulesService = require('./modules/schedulesService.js');
 const { isResourceAvailable } = require('./modules/appointmentService');
+const basicAuth = require('express-basic-auth');
 
 
 // Handlebnars helper functions
@@ -98,51 +89,91 @@ app.locals.siteName = "PAM Trial Booking App";
 
 
 //TODO: implement logic to look these up from the database
+// const researcherIds = [
+//   { id: 1, name: "Researcher1" },
+//   { id: 2, name: "Researcher2" },
+// ];
+
+// const nurseIds = [
+//   { id: 3, name: "Nurse1" },
+//   { id: 4, name: "Nurse2" },
+// ];
+
+// const roomIds = [
+//   { id: 5, name: "Room1" },
+//   { id: 6, name: "Room2" },
+// ]
+
+// const psychologistIds = [
+//   { id: 7, name: "Psychologist1" },
+//   { id: 8, name: "Psychologist2" },
+//   { id: 9, name: "Psychologist3" },
+//   { id: 10, name: "Psychologist4" },
+//   { id: 11, name: "Psychologist5" },
+//   { id: 12, name: "Psychologist6" },
+//   { id: 13, name: "Psychologist7" },
+// ];
 
 
-const researcherIds = [
-  { id: 1, name: "Researcher1" },
-  { id: 2, name: "Researcher2" },
-];
+// app.locals.researcher_ids = researcherIds;
+// app.locals.nurse_ids = nurseIds;
+// app.locals.psychologist_ids = psychologistIds;
+// app.locals.room_ids = roomIds;
 
-const nurseIds = [
-  { id: 3, name: "Nurse1" },
-  { id: 4, name: "Nurse2" },
-];
-
-const roomIds = [
-  { id: 5, name: "Room1" },
-  { id: 6, name: "Room2" },
-]
-
-const psychologistIds = [
-  { id: 7, name: "Psychologist1" },
-  { id: 8, name: "Psychologist2" },
-  { id: 9, name: "Psychologist3" },
-  { id: 10, name: "Psychologist4" },
-  { id: 11, name: "Psychologist5" },
-  { id: 12, name: "Psychologist6" },
-  { id: 13, name: "Psychologist7" },
-];
-
-
-app.locals.researcher_ids = researcherIds;
-app.locals.nurse_ids = nurseIds;
-app.locals.psychologist_ids = psychologistIds;
-app.locals.room_ids = roomIds;
 app.locals.appointment_numbers = [1, 2, 3, 4, 5, 6, 7, 8];
 
-const participantIds = Array.from({ length: 40 }, (_, i) => i + 1);
+const participantIds = Array.from({ length: 100 }, (_, i) => i + 1);
 app.locals.participant_ids = participantIds
 
-// APIs
-app.get("/", (req, res) => {
-  res.render("home", { title: "Booking App" });
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: "your-secret-key", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// Middleware to check if the user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (req.session && req.session.user) {
+    // User is authenticated
+    return next();
+  } else {
+    // User is not authenticated, redirect to login page
+    res.redirect("/login");
+  }
+};
+
+// Authentication routes
+app.get("/login", (req, res) => {
+  res.render("login", { title: "Login to Booking App" });
+});
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Check if the provided username and password are correct
+  if (username === "username" && password === "password") {
+    // Successful authentication; store user information in the session
+    req.session.user = username;
+    res.redirect("/"); // Redirect to the root route
+  } else {
+    // Authentication failed; render the login form with an error message
+    res.render("login", { title: "Login to Booking App", error: "Invalid credentials" });
+  }
+});
+
+// Root route (requires authentication)
+app.get("/", isAuthenticated, (req, res) => {
+  const user = req.session.user;
+  res.render("home", { title: "Booking App", user });
 });
 
 
 //get the base schedules of the resources
-app.get("/schedules", async (req, res) => {
+app.get("/schedules", isAuthenticated, async (req, res) => {
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
@@ -162,7 +193,6 @@ app.get("/schedules", async (req, res) => {
     // Fetch the schedules for the current page with LIMIT and OFFSET
     const schedules = await db.all(`SELECT schedules.id AS scheduleId, schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id`);
 
-
     const filteredSchedules = schedules.filter(schedule => {
 
       const scheduleStartDate = moment(schedule.start_time.split(' ')[0]).format('YYYY-MM-DD');
@@ -176,8 +206,6 @@ app.get("/schedules", async (req, res) => {
       return isStartDateValid && isEndDateValid && isResourceNameValid;
     });
 
-
-
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
     const totalSchedules = countResult.count;
@@ -190,8 +218,8 @@ app.get("/schedules", async (req, res) => {
   }
 });
 
-app.post("/schedules", async (req, res) => {
 
+app.post("/schedules", async (req, res) => {
 
   try {
     const db = await sqlite.open({
@@ -201,9 +229,7 @@ app.post("/schedules", async (req, res) => {
 
     const { startTime, endTime, startDate, endDate, resourceName, day } = req.body;
 
-
     const result = await schedulesService.addSchedules(db, startTime, endTime, startDate, endDate, day, resourceName);
-
 
     res.json({ message: "Successfully added schedules" })
   } catch (err) {
@@ -268,8 +294,9 @@ app.delete("/schedules", async (req, res) => {
   }
 });
 
+
 //get the remaining appointment availability
-app.get("/appointmentAvailability", async (req, res) => {
+app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
 
   try {
     const db = await sqlite.open({
@@ -293,12 +320,9 @@ app.get("/appointmentAvailability", async (req, res) => {
       "SELECT schedules.*, bookable_things.* FROM schedules JOIN bookable_things ON schedules.bookable_thing_id = bookable_things.id"
     );
 
-
     const bookedTimes = await db.all("SELECT * FROM booked_times");
-
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName, nurseName);
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
-
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -315,6 +339,7 @@ app.get("/appointmentAvailability", async (req, res) => {
     });
   }
 });
+
 
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
@@ -337,7 +362,6 @@ app.post("/appointments", async (req, res) => {
       date
     } = req.body;
 
-
     // Check if booking is for multiple appointments
     if (multiple_appointments === 'true') {
       // Create an array to store all the appointments that need to be booked
@@ -350,10 +374,10 @@ app.post("/appointments", async (req, res) => {
 
         // Check if all resources are available at the calculated start time
         const resourcesAvailable = await Promise.all([
-          researcherName && isResourceAvailable(db, researcherName, appointmentNumber, fullStartTime),
-          nurseName && isResourceAvailable(db, nurseName, appointmentNumber, fullStartTime),
-          psychologistName && isResourceAvailable(db, psychologistName, appointmentNumber, fullStartTime),
-          roomName && isResourceAvailable(db, roomName, appointmentNumber, fullStartTime)
+          researcherName && isResourceAvailable(db, researcherName, appointmentNumber, fullStartTime, 'Researcher'),
+          nurseName && isResourceAvailable(db, nurseName, appointmentNumber, fullStartTime, 'Nurse'),
+          psychologistName && isResourceAvailable(db, psychologistName, appointmentNumber, fullStartTime, 'Psychologist'),
+          roomName && isResourceAvailable(db, roomName, appointmentNumber, fullStartTime, 'Room')
         ]);
 
         // If all resources are available, add the appointment details to the array
@@ -420,7 +444,7 @@ app.post("/appointments", async (req, res) => {
 });
 
 
-app.get("/participants", async (req, res) => {
+app.get("/participants", isAuthenticated, async (req, res) => {
   try {
     const db = await sqlite.open({
       filename: DB_PATH,
@@ -436,7 +460,7 @@ app.get("/participants", async (req, res) => {
 
     const participantBookings = await db.all("SELECT * FROM appointments");
 
-    let arrangedData = Array(40).fill().map((_, i) => ({
+    let arrangedData = Array(100).fill().map((_, i) => ({
       participantId: i + 1,
       appointments: Array(8).fill(null)
     }));
@@ -460,7 +484,6 @@ app.get("/participants", async (req, res) => {
           appointmentId: booking.id,
           psychologist: psycholoigst,
           researcher: researcher,
-
         }
 
       } else {
@@ -469,7 +492,6 @@ app.get("/participants", async (req, res) => {
     });
 
     await Promise.all(bookingPromises);
-
 
     res.render("participants", { title: "Participants", participantBookings, arrangedData, dropDownOptions });
   } catch (err) {
@@ -509,10 +531,8 @@ app.get("/bookedTimes/:id", async (req, res) => {
     });
 
     const { id } = req.params;
-    
 
     const bookedTimes = await db.all(`SELECT * FROM booked_times WHERE appointment_id = ?`, id);
-    console.log(bookedTimes)
 
     res.json(bookedTimes);
 
@@ -522,6 +542,7 @@ app.get("/bookedTimes/:id", async (req, res) => {
     res.status(500).send("Failed to retrieve booked time");
   }
 });
+
 
 // Start the server running.
 app.listen(port, hostname, function () {

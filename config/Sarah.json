@@ -1,8 +1,10 @@
 {
   "availability": [
     {
-      "startDate": "2023-08-01",
-      "endDate": "2024-12-01",
+      "name": "Sarah",
+      "startDate": "2023-10-01",
+      "endDate": "2025-12-01",
+      "type": "Nurse",
       "availabilityByDay": [
         {
           "dayOfWeek": "Monday",

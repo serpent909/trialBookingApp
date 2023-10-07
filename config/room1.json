@@ -3,6 +3,7 @@
     {
       "startDate": "2023-08-01",
       "endDate": "2024-12-01",
+      "type": "Room",
       "availabilityByDay": [
         {
           "dayOfWeek": "Monday",

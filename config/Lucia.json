@@ -1,26 +1,11 @@
 {
   "availability": [
     {
-      "name": "Nurse2",
+      "name": "Lucia",
       "startDate": "2023-10-01",
       "endDate": "2025-12-01",
-      "type": "Nurse",
+      "type": "Researcher",
       "availabilityByDay": [
-        {
-          "dayOfWeek": "Monday",
-          "startTime": "08:00",
-          "endTime": "18:00"
-        },
-        {
-          "dayOfWeek": "Tuesday",
-          "startTime": "08:00",
-          "endTime": "18:00"
-        },
-        {
-          "dayOfWeek": "Wednesday",
-          "startTime": "08:00",
-          "endTime": "18:00"
-        },
         {
           "dayOfWeek": "Thursday",
           "startTime": "08:00",

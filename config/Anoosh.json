@@ -2,8 +2,9 @@
   "availability": [
     {
       "name": "Anoosh",
-      "startDate": "2023-08-01",
-      "endDate": "2024-12-01",
+      "startDate": "2023-10-01",
+      "endDate": "2025-12-01",
+      "type": "Psychologist",
       "availabilityByDay": [
         {
           "dayOfWeek": "Monday",

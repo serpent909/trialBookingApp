@@ -18,35 +18,61 @@ async function createAppointment(db, participantName, researcherName, nurseName,
   const roomRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [roomName]);
   const room_id = roomRow ? roomRow.id : null;
 
-  let appointment_number = parseInt(appointmentName)
+  let appointmentToBook = parseInt(appointmentName)
   let participant_id = participantName
 
   //Check participant has no higher number appointments booked earlier
   const participantBookedAppointments = await db.all('SELECT appointment_number FROM appointments WHERE participant_id = ?', [participant_id]);
-  participantBookedAppointments.forEach(function (appointment) {
-    if (appointment.appointment_number >= appointment_number) {
-      throw new Error(`The participant already has a later appointment booked before this date`);
-    }
-  });
+
+
+  if (participantBookedAppointments.length > 0) {
+
+    participantBookedAppointments.forEach((existingAppointment) => {
+
+      let existingAppointmentDate = moment(existingAppointment.start_time).valueOf();
+      let appointmentToBookDate = moment(date).valueOf();
+
+
+
+      if
+        ((appointmentToBook > existingAppointment.appointment_number) &&
+        (appointmentToBookDate < existingAppointmentDate)) {
+
+        throw new Error(`Participant has already booked a lower number appointment after this one`);
+
+
+      }
+
+      if
+        ((appointmentToBook < existingAppointment.appointment_number) &&
+        (appointmentToBookDate > existingAppointmentDate)) {
+
+        throw new Error(`Participant has already booked a higher number appointment before this one`);
+
+
+      }
+
+    });
+  }
 
   let end_time;
   let appointment_type_id;
 
-  if (appointment_number === 1) {
+  if (appointmentToBook === 1) {
     appointment_type_id = 1;
-  } else if (appointment_number === 2) {
+  } else if (appointmentToBook === 2) {
     appointment_type_id = 2;
-  } else if (appointment_number === 3) {
+  } else if (appointmentToBook === 3) {
     appointment_type_id = 3;
-  } else if (appointment_number === 4) {
+  } else if (appointmentToBook === 4) {
     appointment_type_id = 3;
-  } else if (appointment_number === 5) {
+  } else if (appointmentToBook === 5) {
     appointment_type_id = 3;
-  } else if (appointment_number === 6) {
+  } else if (appointmentToBook === 6) {
     appointment_type_id = 3;
-  } else if (appointment_number === 7) {
+  } else if (appointmentToBook === 7) {
     appointment_type_id = 3;
-  } else if (appointment_number === 8) {
+  } else if (appointmentToBook === 8) {
     appointment_type_id = 3;
   }
 
@@ -65,7 +91,7 @@ async function createAppointment(db, participantName, researcherName, nurseName,
     // First, insert into the appointments table
     let result = await db.run(
       "INSERT INTO appointments (participant_id, appointment_number, start_time, end_time) VALUES (?, ?, ?, ?)",
-      [participant_id, appointment_number, startTime, end_time]
+      [participant_id, appointmentToBook, startTime, end_time]
     );
 
     // Get the id of the appointment just inserted
@@ -133,7 +159,7 @@ function adjustTimes(appointmentType, resourceId, originalStartTime) {
   return { newStartTime: result.calculatedStartTime, newEndTime: result.calculatedEndTime };
 }
 
-async function isResourceAvailable(db, resourceName, appointmentNumber, startTime) {
+async function isResourceAvailable(db, resourceName, appointmentNumber, startTime, resourceType) {
 
   let appointmentType;
 
@@ -145,7 +171,6 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
     throw new Error('Invalid appointment number');
   }
 
-  const resourceType = resourceName.slice(0, -1).toLowerCase();
   const calculatedResourceTimes = calculateTime(resourceType, appointmentType, startTime)
 
   const resourceStartTime = calculatedResourceTimes.calculatedStartTime;
@@ -156,7 +181,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
   const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
   const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
 
-  //If now schedule available for resource on the same day, throw an error
+  //If no schedule available for resource on the same day, throw an error
   if (!sameDaySchedule) {
     throw new Error(`No availability schedule found for ${resourceName} on ${resourceDate}`);
   }
