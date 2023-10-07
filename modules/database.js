@@ -11,6 +11,7 @@ const sqlScript = fs.readFileSync(SQL_SCRIPT_PATH, 'utf8');
 
 function readAvailabilityJson(resource) {
   const filePath = path.join(AVAILABILITY_DIR, `${resource}.json`);
+  console.log(filePath)
   const rawData = fs.readFileSync(filePath, 'utf-8');
   return JSON.parse(rawData);
 }
