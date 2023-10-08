@@ -524,26 +524,50 @@ app.delete("/appointments/:id", async (req, res) => {
   }
 });
 
-app.get("/bookedTimes/:id", async (req, res) => {
 
+
+app.get('/calendar', async (req, res) => {
+  let bookableThingId = req.params.id;
+  bookableThingId = parseInt(bookableThingId);
+
+  
   try {
+    // Connect to the database
     const db = await sqlite.open({
       filename: DB_PATH,
       driver: sqlite3.Database,
     });
 
-    const { id } = req.params;
+    // Fetch booked times from the database for the specified bookableThingId
+    const rows = await db.all(
+      'SELECT booked_times.*, appointments.* FROM booked_times JOIN appointments ON booked_times.appointment_id = appointments.id',
+      
+    );
 
-    const bookedTimes = await db.all(`SELECT * FROM booked_times WHERE appointment_id = ?`, id);
+    console.log(rows)
 
-    res.json(bookedTimes);
+    // Close the database connection
+    await db.close();
 
-  }
-  catch (err) {
+    const bookedTimes = rows.map(row => ({
+      name: row.booked_name,
+      start: row.start_time,
+      end: row.end_time,
+      participantId: row.participant_id,
+    }));
+
+       // Convert bookedTimes to a JSON string
+       const bookedTimesJSON = JSON.stringify(bookedTimes);
+
+    // Render the calendar view and pass the bookedTimes data to it
+    res.render('calendar', { bookedTimesJSON });
+  } catch (err) {
     console.error('Failed to retrieve booked time:', err);
-    res.status(500).send("Failed to retrieve booked time");
+    res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 
 // Start the server running.
