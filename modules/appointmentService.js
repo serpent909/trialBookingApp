@@ -228,6 +228,8 @@ function isSlotAvailable(resourceStartTime, resourceEndTime, scheduleStartTime, 
   return true;
 }
 
+
+
 module.exports = {
   createAppointment,
   calculateTime,
