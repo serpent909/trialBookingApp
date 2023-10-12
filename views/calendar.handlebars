@@ -7,14 +7,11 @@
 </head>
 
 <body>
+    <h1>Resource Schedule</h1>
     <div id="calendar"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
-    <style>
-        #calendar {
-            padding-top: 20px;
-        }
-    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
@@ -25,21 +22,18 @@
             // Parse the JSON string to obtain the bookedTimes array
             var bookedTimes = JSON.parse(bookedTimesJSON);
 
-
-
-
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridWeek',
                 events: bookedTimes.map(function (event) {
                     event.start = moment(event.start, 'YYYY-MM-DD hh:mm:ss').format('YYYY-MM-DDTHH:mm:ss');
                     event.end = moment(event.end, 'YYYY-MM-DD hh:mm:ss').format('YYYY-MM-DDTHH:mm:ss');
-            
+
 
                     return {
                         title: event.name,
                         start: event.start, // Start time
-                        end: event.end, 
-                        participantId: event.participantId    
+                        end: event.end,
+                        participantId: event.participantId
 
                     };
                 }),
@@ -83,12 +77,70 @@
 
                     return { domNodes: [eventContentEl] };
                 },
-
             });
 
             calendar.render();
         });
-    </script>
-</body>
 
+    </script>
+    <style>
+
+        /* Calendar container */
+        #calendar {
+            margin-top: 50px;
+            background-color: #f7f7f7;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            min-height: 800px;
+            max-height: fit-content;
+        }
+
+        /* Event content */
+        .event-content {
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        /* Event title */
+        .event-title {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        /* Event time */
+        .event-time {
+            font-size: 13px;
+        }
+
+        /* Participant ID */
+        .event-participantId {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Calendar header */
+        .fc-header-toolbar {
+            border-radius: 10px 10px 0 0;
+
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Event hover effect */
+        .fc-event:hover {
+            background-color: #73c7ff;
+        }
+
+        /* Event border */
+        .fc-event {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</body>
 </html>
