@@ -504,6 +504,28 @@ app.get("/participants", isAuthenticated, async (req, res) => {
 });
 
 
+app.get("/bookedTimes/:id", async (req, res) => {
+
+  try {
+    const db = await sqlite.open({
+      filename: DB_PATH,
+      driver: sqlite3.Database,
+    });
+
+    const { id } = req.params;
+
+    const bookedTimes = await db.all(`SELECT * FROM booked_times WHERE appointment_id = ?`, id);
+
+    res.json(bookedTimes);
+
+  }
+  catch (err) {
+    console.error('Failed to retrieve booked time:', err);
+    res.status(500).send("Failed to retrieve booked time");
+  }
+});
+
+
 app.delete("/appointments/:id", async (req, res) => {
   try {
     const db = await sqlite.open({
