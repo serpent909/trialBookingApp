@@ -36,26 +36,19 @@ async function createAppointment(db, participantName, researcherName, nurseName,
       let existingAppointmentDate = moment((existingAppointment.start_time).split(' ')[0]).valueOf();
       let appointmentToBookDate = moment(date).valueOf();
 
-      console.log(appointmentToBookDate)
-      console.log(existingAppointmentDate)
-
-
-
       if
         ((appointmentToBook > existingAppointment.appointment_number) &&
-        (appointmentToBookDate < existingAppointmentDate)) {
+        (appointmentToBookDate <= existingAppointmentDate)) {
 
         throw new Error(`Participant has already booked a lower number appointment after this one`);
-
 
       }
 
       if
         ((appointmentToBook < existingAppointment.appointment_number) &&
-        (appointmentToBookDate > existingAppointmentDate)) {
+        (appointmentToBookDate >= existingAppointmentDate)) {
 
         throw new Error(`Participant has already booked a higher number appointment before this one`);
-
 
       }
 
