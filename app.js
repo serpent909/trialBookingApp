@@ -105,7 +105,7 @@ app.locals.siteName = "PAM Trial Booking App";
 // ]
 
 // const psychologistIds = [
-//   { id: 7, name: "Psychologist1" },
+//   { id: 7, name: "Anoosh" },
 //   { id: 8, name: "Psychologist2" },
 //   { id: 9, name: "Psychologist3" },
 //   { id: 10, name: "Psychologist4" },
@@ -206,6 +206,8 @@ app.get("/schedules", isAuthenticated, async (req, res) => {
       return isStartDateValid && isEndDateValid && isResourceNameValid;
     });
 
+    filteredSchedules.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
     // Count the total number of schedules
     const countResult = await db.get('SELECT COUNT(*) AS count FROM schedules');
     const totalSchedules = countResult.count;
@@ -296,7 +298,8 @@ app.delete("/schedules", async (req, res) => {
 
 
 //get the remaining appointment availability
-app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
+app.get("/appointmentAvailability",  async (req, res) => {
+
 
   try {
     const db = await sqlite.open({
@@ -305,6 +308,7 @@ app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
     });
 
     const { startDate, endDate, participantNumber, appointmentNumber, psychologistName, nurseName, roomName, researcherName } = req.query;
+
 
     //Populate dropdown options
     const rows = await db.all("SELECT name, type FROM bookable_things");
@@ -322,7 +326,10 @@ app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
 
     const bookedTimes = await db.all("SELECT * FROM booked_times");
     const availableSlots = availableSlotscalculationService.populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDate, endDate, appointmentNumber, researcherName, psychologistName, roomName, nurseName);
+
     const formattedTimeSlotsWithAppointmentNumberLogic = availableSlotscalculationService.formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber)
+
+
 
     res.render("appointmentAvailability", {
       title: "Appointment Availability",
@@ -344,7 +351,7 @@ app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
 //Boook appointment(s)
 app.post("/appointments", async (req, res) => {
 
-  console.log(req.body)
+
 
   try {
     const db = await sqlite.open({
@@ -566,7 +573,7 @@ app.get('/calendar', async (req, res) => {
       
     );
 
-    console.log(rows)
+
 
     // Close the database connection
     await db.close();

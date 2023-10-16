@@ -4,7 +4,6 @@ const appointmentConfig = JSON.parse(fs.readFileSync('./config/appointmentRules.
 
 async function createAppointment(db, participantName, researcherName, nurseName, psychologistName, roomName, appointmentName, date, startTime) {
 
-  console.log(date)
 
   startTime = date + ' ' + startTime;
 
@@ -31,7 +30,6 @@ async function createAppointment(db, participantName, researcherName, nurseName,
 
     participantBookedAppointments.forEach((existingAppointment) => {
 
-      console.log(existingAppointment)
 
       let existingAppointmentDate = moment((existingAppointment.start_time).split(' ')[0]).valueOf();
       let appointmentToBookDate = moment(date).valueOf();
@@ -179,7 +177,7 @@ async function isResourceAvailable(db, resourceName, appointmentNumber, startTim
 
   const resourceIdRow = await db.get('SELECT id FROM bookable_things WHERE name = ?', [resourceName]);
   const sameDaySchedule = await db.get(`SELECT * FROM schedules WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
-  console.log("sameDaySchedule", sameDaySchedule)
+
   const sameDayAppointments = await db.get(`SELECT * FROM booked_times WHERE bookable_thing_id = ? AND strftime('%Y-%m-%d', start_time) = ?`, [resourceIdRow.id, resourceDate]);
 
   //If no schedule available for resource on the same day, throw an error

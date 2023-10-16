@@ -81,10 +81,12 @@ function filterSlots(startDate, endDate, availableDaySlots, appointmentNumber, r
         return (slotEnd - slotStart) >= (calculateEnd - calculateStart);
 
       } else if (slotType === "Psychologist") {
+  
         const slotStart = moment(slot.start);
         const slotEnd = moment(slot.end);
         const timeObject = appointmentService.calculateTime(slotType, appointment_type_id, slot.start);
         const calculateStart = moment(timeObject.calculatedStartTime)
+    
         const calculateEnd = moment(timeObject.calculatedEndTime)
         return (slotEnd - slotStart) >= (calculateEnd - calculateStart);
 
@@ -282,6 +284,8 @@ function populateAvailableSlots(baseAvailabilitySchedules, bookedTimes, startDat
 
 function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNumber) {
 
+ 
+
   const appointmentTypeRules = {
     1: "type1",
     2: "type2",
@@ -297,6 +301,8 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
   const appointmentType = appointmentTypeRules[appointmentNumber];
 
 
+
+
   // Sort availableSlots by type and date
   const slotsByTypeAndDate = availableSlots.reduce((slots, slot) => {
     const date = slot.start_time.split(' ')[0];
@@ -305,6 +311,7 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
     slots[date][slot.type].push(slot);
     return slots;
   }, {});
+
 
 
   const resourceDateCombinations = {};
@@ -381,6 +388,9 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
 
       let combinedSlotsWithMinimumResourcesRequired = checkRequiredResourcesAvailableForAppointmentType(combinedObject);
 
+      // console.log(combinedSlotsWithMinimumResourcesRequired);
+      //Appears correct here
+
 
       if (combinedSlotsWithMinimumResourcesRequired) {
         let possibleSlotAppointmentTimes = calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResourcesRequired);
@@ -402,6 +412,8 @@ function formatTimeSlotsWithAppointmentNumberLogic(availableSlots, appointmentNu
     }
   }
 
+
+
   return finalArray;
 
 }
@@ -421,6 +433,8 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
     nurseEndTime
   } = combinedSlotsWithMinimumResourcesRequired;
 
+
+
   const {
     researcherOffset,
     researcherDuration,
@@ -432,13 +446,16 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
     roomDuration
   } = appointmentRules[type];
 
+
+
   const participantDuration = Math.max(researcherDuration + researcherOffset, nurseDuration + nurseOffset, psychologistDuration + psychologistOffset, roomDuration + roomOffset);
 
   let earliestStartTime;
   let latestStartTime;
 
-  if (researcherDuration && nurseDuration && psychologistDuration && roomDuration) {
 
+
+  if (researcherDuration && nurseDuration && psychologistDuration && roomDuration) {
 
     earliestStartTime = moment.max(
       moment(researcherStartTime).subtract(researcherOffset, 'minutes'),
@@ -447,12 +464,14 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
       moment(roomStartTime).subtract(roomOffset, 'minutes')
     )
 
+   
     latestStartTime = moment.min(
-      moment(nurseEndTime).subtract(nurseDuration, 'minutes'),
-      moment(researcherEndTime).subtract(researcherDuration, 'minutes'),
-      moment(psychologistEndTime).subtract(psychologistDuration, 'minutes'),
-      moment(roomEndTime).subtract(roomDuration, 'minutes')
+      moment(nurseEndTime).subtract(nurseDuration, 'minutes').subtract(nurseOffset, 'minutes'),
+      moment(researcherEndTime).subtract(researcherDuration, 'minutes').subtract(researcherOffset, 'minutes'),
+      moment(psychologistEndTime).subtract(psychologistDuration, 'minutes').subtract(psychologistOffset, 'minutes'),
+      moment(roomEndTime).subtract(roomDuration, 'minutes').subtract(roomOffset, 'minutes')
     );
+
 
   } else if (researcherDuration && roomDuration && psychologistDuration && nurseDuration === 0) {
 
@@ -463,7 +482,7 @@ function calculatePossibleSlotAppointmentTimes(combinedSlotsWithMinimumResources
     );
 
     latestStartTime = moment.min(
-      moment(roomEndTime).subtract(roomDuration, 'minutes').subtract(nurseOffset, 'minutes'),
+      moment(roomEndTime).subtract(roomDuration, 'minutes').subtract(roomOffset, 'minutes'),
       moment(researcherEndTime).subtract(researcherDuration, 'minutes').subtract(researcherOffset, 'minutes'),
       moment(psychologistEndTime).subtract(psychologistDuration, 'minutes').subtract(psychologistOffset, 'minutes')
     );
