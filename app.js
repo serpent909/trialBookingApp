@@ -155,7 +155,7 @@ app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   // Check if the provided username and password are correct
-  if (username === "username" && password === "password") {
+  if (username === "pamtrial" && password === "schedulingishard") {
     // Successful authentication; store user information in the session
     req.session.user = username;
     res.redirect("/"); // Redirect to the root route

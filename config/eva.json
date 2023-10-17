@@ -9,8 +9,8 @@
       "availabilityByDay": [
         {
           "dayOfWeek": "Thursday",
-          "startTime": "13:00",
-          "endTime": "15:30"
+          "startTime": "12:00",
+          "endTime": "16:00"
         }
       ]
     }
