@@ -298,7 +298,7 @@ app.delete("/schedules", async (req, res) => {
 
 
 //get the remaining appointment availability
-app.get("/appointmentAvailability",  async (req, res) => {
+app.get("/appointmentAvailability", isAuthenticated, async (req, res) => {
 
 
   try {
@@ -559,7 +559,7 @@ app.get('/calendar', async (req, res) => {
   let bookableThingId = req.params.id;
   bookableThingId = parseInt(bookableThingId);
 
-  
+
   try {
     // Connect to the database
     const db = await sqlite.open({
@@ -569,8 +569,18 @@ app.get('/calendar', async (req, res) => {
 
     // Fetch booked times from the database for the specified bookableThingId
     const rows = await db.all(
-      'SELECT booked_times.*, appointments.* FROM booked_times JOIN appointments ON booked_times.appointment_id = appointments.id',
-      
+      `SELECT appointments.id, 
+      appointments.participant_id, 
+      appointments.appointment_number, 
+      appointments.start_time AS appointment_start_time, 
+      appointments.end_time AS appointment_end_time, 
+      booked_times.bookable_thing_id, 
+      booked_times.booked_name, 
+      booked_times.start_time AS booked_start_time, 
+      booked_times.end_time AS booked_end_time
+      FROM appointments
+      INNER JOIN booked_times ON appointments.id = booked_times.appointment_id`,
+
     );
 
 
@@ -580,13 +590,16 @@ app.get('/calendar', async (req, res) => {
 
     const bookedTimes = rows.map(row => ({
       name: row.booked_name,
-      start: row.start_time,
-      end: row.end_time,
+      start: row.booked_start_time,
+      end: row.booked_end_time,
       participantId: row.participant_id,
+      appointmentNumber: row.appointment_number,
+      appointmentStartTime: row.appointment_start_time,
+      appointmentEndTime: row.appointment_end_time,
     }));
 
-       // Convert bookedTimes to a JSON string
-       const bookedTimesJSON = JSON.stringify(bookedTimes);
+    // Convert bookedTimes to a JSON string
+    const bookedTimesJSON = JSON.stringify(bookedTimes);
 
     // Render the calendar view and pass the bookedTimes data to it
     res.render('calendar', { bookedTimesJSON });
