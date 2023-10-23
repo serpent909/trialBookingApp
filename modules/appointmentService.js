@@ -117,7 +117,7 @@ async function createAppointment(db, participantName, researcherName, nurseName,
 
 
   } catch (error) {
-    throw error // Rethrow the error to be handled by the caller
+    throw error; // Rethrow the error to be handled by the caller
   }
 }
 
